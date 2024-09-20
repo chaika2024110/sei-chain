@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -20,16 +21,20 @@ func (k *Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	defer func() {
 		if r := recover(); r != nil {
 			// If panic occurs, try to get paramsPreV580
+			fmt.Printf("[Debug] Hitting panic recover for getParams at height: %d\n", ctx.BlockHeight())
 			params = k.GetParamsPreV580(ctx)
 		}
 	}()
 	k.Paramstore.GetParamSet(ctx, &params)
+	fmt.Printf("[Debug] Got params at height: %d, %v\n", ctx.BlockHeight(), params)
 	return params
 }
 
 func (k *Keeper) GetParamsPreV580(ctx sdk.Context) types.Params {
 	paramsPreV580 := types.ParamsPreV580{}
+	fmt.Printf("[Debug] Getting v590Params at height: %d\n", ctx.BlockHeight())
 	k.Paramstore.GetParamSet(ctx, &paramsPreV580)
+	fmt.Printf("[Debug] Got v590Params at height: %d\n", ctx.BlockHeight())
 	// Convert paramsPreV580 to params
 	return types.Params{
 		PriorityNormalizer:                     paramsPreV580.PriorityNormalizer,
