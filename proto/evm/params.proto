@@ -48,7 +48,7 @@ string minimum_fee_per_gas = 4 [
     (gogoproto.jsontag) = "whitelisted_cw_code_hashes_for_delegate_call"
   ];
 
-  uint64 deliver_tx_hook_wasm_gas_limit = 9;
+  optional uint64 deliver_tx_hook_wasm_gas_limit = 9;
 }
 
 message ParamsPreV580 {
