@@ -405,3 +405,46 @@ func signTx(txBuilder client.TxBuilder, privKey cryptotypes.PrivKey, acc authtyp
 	_ = txBuilder.SetSignatures(sigsV2...)
 	return txBuilder.GetTx()
 }
+
+func TestTranslateCW20Event(t *testing.T) {
+	k := testkeeper.EVMTestApp.EvmKeeper
+	wasmKeeper := k.WasmKeeper()
+	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now()).WithChainID("sei-test").WithBlockHeight(1)
+	code, err := os.ReadFile("../contracts/wasm/cw20_base.wasm")
+	require.Nil(t, err)
+	privKey := testkeeper.MockPrivateKey()
+	creator, _ := testkeeper.PrivateKeyToAddresses(privKey)
+	codeID, err := wasmKeeper.Create(ctx, creator, code, nil)
+	require.Nil(t, err)
+	contractAddr, _, err := wasmKeeper.Instantiate(ctx, codeID, creator, creator, []byte(fmt.Sprintf("{\"name\":\"test\",\"symbol\":\"test\",\"decimals\":6,\"initial_balances\":[{\"address\":\"%s\",\"amount\":\"1000000000\"}]}", creator.String())), "test", sdk.NewCoins())
+	require.Nil(t, err)
+
+	_, mockPointerAddr := testkeeper.MockAddressPair()
+	k.SetERC20CW20Pointer(ctx, contractAddr.String(), mockPointerAddr)
+
+	// set deliver tx hook wasm gas limit to 1
+	params := evmtypes.DefaultParams()
+	params.DeliverTxHookWasmGasLimit = 1
+	testkeeper.EVMTestApp.EvmKeeper.SetParams(ctx, params)
+
+	ctx = ctx.WithGasMeter(sdk.NewGasMeter(1, 1, 1))
+	log, eligible := testkeeper.EVMTestApp.TranslateCW20Event(ctx, abci.Event{
+		Type: "wasm",
+		Attributes: []abci.EventAttribute{
+			{
+				Key:   []byte("action"),
+				Value: []byte("increase_allowance"),
+			},
+			{
+				Key:   []byte("owner"),
+				Value: []byte(creator.String()),
+			},
+			{
+				Key:   []byte("spender"),
+				Value: []byte(creator.String()),
+			},
+		},
+	}, mockPointerAddr, contractAddr.String())
+	require.True(t, eligible)
+	require.Nil(t, log)
+}

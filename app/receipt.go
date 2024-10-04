@@ -51,7 +51,7 @@ func (app *App) AddCosmosEventsToEVMReceiptIfApplicable(ctx sdk.Context, tx sdk.
 		// check if there is a ERC20 pointer to contractAddr
 		pointerAddr, _, exists := app.EvmKeeper.GetERC20CW20Pointer(queryCtx, contractAddr)
 		if exists {
-			log, eligible := app.translateCW20Event(queryCtx, wasmEvent, pointerAddr, contractAddr)
+			log, eligible := app.TranslateCW20Event(queryCtx, wasmEvent, pointerAddr, contractAddr)
 			if eligible {
 				log.Index = uint(len(logs))
 				logs = append(logs, log)
@@ -111,7 +111,7 @@ func (app *App) AddCosmosEventsToEVMReceiptIfApplicable(ctx sdk.Context, tx sdk.
 	}
 }
 
-func (app *App) translateCW20Event(ctx sdk.Context, wasmEvent abci.Event, pointerAddr common.Address, contractAddr string) (*ethtypes.Log, bool) {
+func (app *App) TranslateCW20Event(ctx sdk.Context, wasmEvent abci.Event, pointerAddr common.Address, contractAddr string) (*ethtypes.Log, bool) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Printf("[Error] Panic caught during translateCW20Event: type=%T, value=%+v\n", r, r)
@@ -153,6 +153,7 @@ func (app *App) translateCW20Event(ctx sdk.Context, wasmEvent abci.Event, pointe
 			app.GetEvmAddressAttribute(ctx, wasmEvent, "owner"),
 			app.GetEvmAddressAttribute(ctx, wasmEvent, "spender"),
 		}
+		fmt.Println("Querying smart contract")
 		res, err := app.WasmKeeper.QuerySmart(
 			ctx,
 			sdk.MustAccAddressFromBech32(contractAddr),
