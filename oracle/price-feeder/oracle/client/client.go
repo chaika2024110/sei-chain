@@ -217,28 +217,33 @@ func (oc OracleClient) CreateClientContext() (client.Context, error) {
 		keyringInput = os.Stdin
 	}
 
+	oc.Logger.Info().Msgf("creating keyring")
 	kr, err := keyring.New("sei", oc.KeyringBackend, oc.KeyringDir, keyringInput)
 	if err != nil {
 		return client.Context{}, err
 	}
+	oc.Logger.Info().Msgf("keyring created without error")
 
 	httpClient, err := tmjsonclient.DefaultHTTPClient(oc.TMRPC)
 	if err != nil {
+		oc.Logger.Error().Msgf("error creating httpClient: %s", err)
 		return client.Context{}, err
 	}
-
+	oc.Logger.Info().Msgf("httpClient created without error")
 	httpClient.Timeout = oc.RPCTimeout
 
 	tmRPC, err := rpchttp.NewWithClient(oc.TMRPC, httpClient)
 	if err != nil {
+		oc.Logger.Error().Msgf("error creating tmRPC: %s", err)
 		return client.Context{}, err
 	}
-
+	oc.Logger.Info().Msgf("tmRPC created without error")
 	keyInfo, err := kr.KeyByAddress(oc.OracleAddr)
 	if err != nil {
+		oc.Logger.Error().Msgf("error creating keyInfo: %s", err)
 		return client.Context{}, err
 	}
-
+	oc.Logger.Info().Msgf("keyInfo created without error")
 	clientCtx := client.Context{
 		ChainID:           oc.ChainID,
 		JSONCodec:         oc.Encoding.Marshaler,
@@ -264,7 +269,7 @@ func (oc OracleClient) CreateClientContext() (client.Context, error) {
 		SkipConfirm:       true,
 		FeeGranter:        oc.FeeGranterAddr,
 	}
-
+	oc.Logger.Info().Msgf("clientCtx created without error")
 	return clientCtx, nil
 }
 
