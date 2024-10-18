@@ -117,11 +117,13 @@ func New(
 
 // Start starts the oracle process in a blocking fashion.
 func (o *Oracle) Start(ctx context.Context) error {
-
+	o.logger.Info().Msgf("creating clientCtx")
 	clientCtx, err := o.oracleClient.CreateClientContext()
 	if err != nil {
+		o.logger.Error().Msgf("error creating clientCtx: %s", err)
 		return err
 	}
+	o.logger.Info().Msgf("clientCtx created without error")
 	var previousBlockHeight int64
 
 	for {
