@@ -32,6 +32,22 @@ message MsgTransfer {
   repeated Auditor auditors = 11 [(gogoproto.moretags) = "yaml:\"auditors\""];
 }
 
+message MsgTr {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string   from_address = 1 [(gogoproto.moretags) = "yaml:\"from_address\""];
+  string   to_address = 2 [(gogoproto.moretags) = "yaml:\"to_address\""];
+  string   denom = 3 [(gogoproto.moretags) = "yaml:\"denom\""];
+  bytes from_amount_lo = 4 [(gogoproto.moretags) = "yaml:\"from_amount_lo\""];
+  bytes from_amount_hi = 5 [(gogoproto.moretags) = "yaml:\"from_amount_hi\""];
+  bytes to_amount_lo = 6 [(gogoproto.moretags) = "yaml:\"to_amount_lo\""];
+  bytes to_amount_hi = 7 [(gogoproto.moretags) = "yaml:\"to_amount_hi\""];
+  bytes remaining_balance = 8 [(gogoproto.moretags) = "yaml:\"decryptable_balance\""];
+  string decryptable_balance = 9 [(gogoproto.moretags) = "yaml:\"decryptable_balance\""];
+  bytes proofs = 10 [(gogoproto.moretags) = "yaml:\"proofs\""];
+}
+
 // MsgSendResponse defines the Msg/Send response type.
 message MsgTransferResponse {}
 
