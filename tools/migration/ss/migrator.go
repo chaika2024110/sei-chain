@@ -67,7 +67,12 @@ func (m *Migrator) Migrate(version int64, homeDir string) error {
 		}
 	}
 
-	// Set latest version in the database
+	// Set earliest and latest version in the database
+	err = m.stateStore.SetEarliestVersion(1)
+	if err != nil {
+		return err
+	}
+
 	return m.stateStore.SetLatestVersion(version)
 }
 
@@ -92,7 +97,8 @@ func (m *Migrator) Verify(version int64) error {
 				return true
 			}
 			if !bytes.Equal(val, value) {
-				verifyErr = fmt.Errorf("verification error: value doesn't match for key %s", string(key))
+				verifyErr = fmt.Errorf("verification error: value doesn't match for key %s. Expected %s, got %s", string(key), string(value), string(val))
+				return true
 			}
 			count++
 			if count%1000000 == 0 {
