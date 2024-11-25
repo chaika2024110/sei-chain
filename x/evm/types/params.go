@@ -33,10 +33,10 @@ var DefaultDeliverTxHookWasmGasLimit = uint64(300000)
 
 var DefaultWhitelistedCwCodeHashesForDelegateCall = generateDefaultWhitelistedCwCodeHashesForDelegateCall()
 
-var DefaultMaxDynamicBaseFeeUpwardAdjustment = sdk.NewDecWithPrec(189, 4)  // 1.89%
-var DefaultMaxDynamicBaseFeeDownwardAdjustment = sdk.NewDecWithPrec(39, 4) // .39%
-var DefaultTargetGasUsedPerBlock = uint64(250000)                          // 250k
-var DefaultMaxFeePerGas = sdk.NewDec(1000000000000)                        // 1,000gwei
+var DefaultMaxDynamicBaseFeeUpwardAdjustment = sdk.NewDecWithPrec(10000, 4) // 100%
+var DefaultMaxDynamicBaseFeeDownwardAdjustment = sdk.ZeroDec()
+var DefaultTargetGasUsedPerBlock = uint64(1)        // 1
+var DefaultMaxFeePerGas = sdk.NewDec(1000000000000) // 1,000gwei
 
 var _ paramtypes.ParamSet = (*Params)(nil)
 

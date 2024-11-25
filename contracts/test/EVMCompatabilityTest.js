@@ -495,7 +495,7 @@ describe("EVM Test", function () {
         expect(success).to.be.true
       });
 
-      describe("EIP-1559", async function() {
+      describe("EIP-1559 Type 2 txs", async function() {
         const zero = ethers.parseUnits('0', 'ether')
         const highgp = ethers.parseUnits("400", "gwei");
         const gp = ethers.parseUnits("100", "gwei");
@@ -1085,17 +1085,163 @@ describe("EVM Test", function () {
 });
 
 describe("EVM Validations ", function() {
+  let signer;
+  let gasSpender;
+  before(async function(){
+    await setupSigners(await hre.ethers.getSigners())
+    signer = generateWallet()
+    await fundAddress(await signer.getAddress())
+    await sleep(3000)
+    gasSpender = await ethers.getContractFactory("GasSpender")
+    gasSpender = await gasSpender.deploy({
+      maxFeePerGas: ethers.parseUnits("100", "gwei"),
+      maxPriorityFeePerGas: ethers.parseUnits("1", "gwei")
+    })
+  })
 
-  describe("chainId", async function(){
-    let signer;
+  describe.only("eip-1559 base fee adjustment", async function(){
+    // senand check that the base fee works
+    const oneGwei = 1000000000;
+    const tooLowMaxFeePerGas = oneGwei - 1;
 
-    before(async function(){
-      await setupSigners(await hre.ethers.getSigners())
-      signer = generateWallet()
-      await fundAddress(await signer.getAddress())
-      await sleep(3000)
+    it("should reject legacy txs with too low of a max fee per gas", async function(){
+      const nonce = await ethers.provider.getTransactionCount(signer, "pending")
+
+      const signedTx = await signer.signTransaction({
+        type: 0,
+        to: await signer.getAddress(),
+        value: 0,
+        nonce: nonce,
+        gasPrice: tooLowMaxFeePerGas,
+        gasLimit: 21000})
+
+      const nodeUrl = 'http://localhost:8545';
+      const response = await axios.post(nodeUrl, {
+        method: 'eth_sendRawTransaction',
+        params: [signedTx],
+        id: 1,
+        jsonrpc: "2.0"
+      })
+
+      expect(response.data.error.message).to.include("insufficient fee")
     })
 
+    it("should reject eip-1559 type 2 txs with too low of a max fee per gas", async function(){
+      const nonce = await ethers.provider.getTransactionCount(signer, "pending")
+
+      const signedTx = await signer.signTransaction({
+        type: 2,
+        to: await signer.getAddress(),
+        value: 0,
+        nonce: nonce,
+        maxPriorityFeePerGas: 100,
+        maxFeePerGas: tooLowMaxFeePerGas,
+        gasLimit: 21000,
+      })
+
+      const nodeUrl = 'http://localhost:8545';
+      const response = await axios.post(nodeUrl, {
+        method: 'eth_sendRawTransaction',
+        params: [signedTx],
+        id: 1,
+        jsonrpc: "2.0"
+      })
+
+      expect(response.data.error.message).to.include("insufficient fee")
+    })
+
+    it("base fee should be correct block", async function() {
+      // send a tx using spendGas contract with 1 million gas used
+
+      // pull the current base fee off latest block
+      const block = await ethers.provider.getBlock("latest")
+      const baseFee = block.baseFeePerGas
+      const higherFee = BigInt(Math.floor(Number(baseFee) * 1.1))
+
+      console.log("baseFee", baseFee)
+      console.log("higherFee", higherFee)
+
+      const tx = await gasSpender.spendGas(1200000, {
+        gasLimit: 1200000,
+        maxFeePerGas: higherFee,
+        maxPriorityFeePerGas: ethers.parseUnits("1", "gwei")
+      })
+      await tx.wait()
+
+      // get effective gas price off of tx receipt
+      const receipt = await tx.wait()
+      const effectiveGasPrice = receipt.effectiveGasPrice
+
+      // get base fee for the block
+      const blockNumber = receipt.blockNumber
+      block = await ethers.provider.getBlock(blockNumber)
+      baseFee = block.baseFeePerGas
+
+      // effective gas price should be at least the base fee
+      expect(effectiveGasPrice).to.be.at.least(baseFee)
+    })
+
+  //   it("send a bunch of txs and check that the base fee works", async function(){
+  //     // get current block
+  //     const initialBlock = await ethers.provider.getBlockNumber();
+
+  //     // need heavier txs to get a good base fee adjustment
+  //     const numBlocks = 10;
+  //     const numTxs = 10;
+
+  //     for(let i=0; i<numBlocks; i++){
+  //       // spend 1 million gas
+  //       await gasSpender.spendGas(1000000, {
+  //         gasLimit: 1000000
+  //       })
+
+
+
+  //     for(let i=0; i<numTxs; i++){
+  //       txs.push(await signer.sendTransaction({
+  //         to: await signer.getAddress(),
+  //         value: 0,
+  //         maxPriorityFeePerGas: 100,
+  //         maxFeePerGas: 100,
+  //         gasLimit: 21000,
+  //       }))
+  //     }
+
+  //     // send all txs
+  //     const promises = txs.map((tx)=>{
+  //       return tx.sendTransaction()
+  //     })
+  //     await Promise.all(promises)
+
+  //     // wait for all txs to be mined
+  //     for(const tx of txs){
+  //       await tx.wait();
+  //     }
+
+  //     const finalBlock = await ethers.provider.getBlockNumber();
+
+  //     // get all the block numbers, base fees, and gas used
+  //     const blockNumbers = []
+  //     const baseFees = []
+  //     const gasUsed = []
+  //     for(let i=initialBlock; i<=finalBlock; i++){
+  //       const block = await ethers.provider.getBlock(i);
+  //       blockNumbers.push(block.number);
+  //       baseFees.push(block.baseFeePerGas);
+  //       gasUsed.push(block.gasUsed);
+  //     }
+
+  //     // call validation helper function
+  //     validateBaseFeeAdjustment(blockNumbers, baseFees, gasUsed);
+  //   })
+
+  //   // dummy validateBaseFeeAdjustment function
+  //   function validateBaseFeeAdjustment(blockNumbers, baseFees, gasUsed){
+  //     // do nothing
+  //   }
+  })
+
+  describe("chainId", async function(){
     it("should prevent wrong chainId for eip-155 txs", async function() {
       const nonce = await ethers.provider.getTransactionCount(signer, "pending")
 
