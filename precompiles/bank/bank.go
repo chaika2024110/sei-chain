@@ -125,7 +125,6 @@ func (p PrecompileExecutor) Execute(ctx sdk.Context, method *abi.Method, caller 
 }
 
 func (p PrecompileExecutor) send(ctx sdk.Context, caller common.Address, method *abi.Method, args []interface{}, value *big.Int, readOnly bool) ([]byte, uint64, error) {
-	fmt.Println("DEBUG: In PrecompileExecutor.send, caller = ", caller.Hex())
 	if readOnly {
 		return nil, 0, errors.New("cannot call send from staticcall")
 	}
