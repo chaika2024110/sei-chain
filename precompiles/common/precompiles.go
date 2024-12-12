@@ -152,6 +152,7 @@ func NewDynamicGasPrecompile(a abi.ABI, executor DynamicGasPrecompileExecutor, a
 }
 
 func (d DynamicGasPrecompile) RunAndCalculateGas(evm *vm.EVM, caller common.Address, callingContract common.Address, input []byte, suppliedGas uint64, value *big.Int, hooks *tracing.Hooks, readOnly bool, isFromDelegateCall bool) (ret []byte, remainingGas uint64, err error) {
+	fmt.Println("DEBUG: In DynamicGasPrecompile.RunAndCalculateGas, caller = ", caller.Hex(), "suppliedGas = ", suppliedGas)
 	operation := fmt.Sprintf("%s_unknown", d.name)
 	defer func() {
 		HandlePrecompileError(err, evm, operation)
