@@ -61,6 +61,7 @@ const WASM = {
     CW1155: "../contracts/wasm/cw1155_base.wasm",
     CW721: "../contracts/wasm/cw721_base.wasm",
     CW20: "../contracts/wasm/cw20_base.wasm",
+    CW20_BANK: "../contracts/wasm/cw20_bank.wasm",
     POINTER_CW20: "../example/cosmwasm/cw20/artifacts/cwerc20.wasm",
     POINTER_CW721: "../example/cosmwasm/cw721/artifacts/cwerc721.wasm",
     POINTER_CW1155: "../example/cosmwasm/cw721/artifacts/cwerc1155.wasm",
@@ -483,7 +484,6 @@ async function executeOnAllNodes(command, interaction=`printf "12345678\\n"`){
 }
 
 async function execute(command, interaction=`printf "12345678\\n"`){
-    console.log("command", command);
     if (await isDocker()) {
         command = command.replace(/\.\.\//g, "/sei-protocol/sei-chain/");
         command = command.replace("/sei-protocol/sei-chain//sei-protocol/sei-chain/", "/sei-protocol/sei-chain/")

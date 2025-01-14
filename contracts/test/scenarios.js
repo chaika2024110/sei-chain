@@ -14,7 +14,7 @@ describe("Scenarios", function () {
     let accounts;
     let admin;
     let cw20Address;
-
+    let cw20Bank;
     before(async function () {
         accounts = await setupSigners(await hre.ethers.getSigners());
         admin = await getAdmin();
@@ -38,10 +38,14 @@ describe("Scenarios", function () {
         denom = await createTokenFactoryTokenAndMint(`native-pointer-test-${random_num}`, 1000, accounts[0].seiAddress)
 
         // CW contract that owns the CW20 token
+        cw20Bank = await deployWasm(WASM.CW20_BANK, accounts[0].seiAddress, "cw20-bank", {
+            cw20_token_address: cw20Address
+        });
     });
 
     it("placeholder", async function () {   
         console.log("cw20 address", cw20Address);
         console.log("native token address", denom);
+        console.log("cw20 bank address", cw20Bank);
     });
 });
