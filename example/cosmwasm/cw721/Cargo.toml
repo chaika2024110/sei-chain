@@ -23,3 +23,5 @@ cw721-base = "0.18.0"
 schemars = "0.8.16"
 serde = "1.0.195"
 thiserror = "1.0.56"
+cw-ownable = "0.5.1"
+

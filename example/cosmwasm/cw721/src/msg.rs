@@ -2,6 +2,7 @@ use cosmwasm_std::{CosmosMsg, CustomMsg, CustomQuery, Uint128};
 use schemars::JsonSchema;
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use serde::{Deserialize, Serialize};
+use cw_ownable::cw_ownable_execute;
 
 pub use cw721_base::{ExecuteMsg, QueryMsg};
 
@@ -9,6 +10,7 @@ pub use cw721_base::{ExecuteMsg, QueryMsg};
 pub struct InstantiateMsg {
     pub erc721_address: String,
 }
+
 
 #[cw_serde]
 pub struct MigrateMsg {}

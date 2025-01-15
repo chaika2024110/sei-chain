@@ -11,6 +11,9 @@ use crate::querier::{EvmQuerier, DEFAULT_LIMIT, MAX_LIMIT};
 use crate::error::ContractError;
 use crate::state::ERC721_ADDRESS;
 use std::str::FromStr;
+use cw_ownable::{initialize_owner, update_ownership};
+use cw_ownable::get_ownership;
+use cosmwasm_std::QuerierWrapper;
 
 const ERC2981_ID: &str = "0x2a55205a";
 
@@ -21,6 +24,8 @@ pub fn instantiate(
     _info: MessageInfo,
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
+    let owner = _info.sender.to_string();
+    initialize_owner(deps.storage, deps.api, Some(&owner))?;
     ERC721_ADDRESS.save(deps.storage, &msg.erc721_address)?;
     Ok(Response::default())
 }
@@ -37,7 +42,7 @@ pub fn migrate(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
     deps: DepsMut<EvmQueryWrapper>,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
     msg: ExecuteMsg<Option<Cw2981Metadata>, Empty>,
 ) -> Result<Response<EvmMsg>, ContractError> {
@@ -62,8 +67,13 @@ pub fn execute(
         },
         ExecuteMsg::Burn { token_id: _ } => { execute_burn() },
         ExecuteMsg::Mint { .. } => execute_mint(),
-        ExecuteMsg::UpdateOwnership(_) => update_ownership(),
+        ExecuteMsg::UpdateOwnership(action) => {
+            let ownership = update_ownership(deps, &env.block, &info.sender, action)?;
+            Ok(Response::new()
+                .add_attributes(ownership.into_attributes()))
+        },
         ExecuteMsg::Extension { .. } => execute_extension(),
+        _ => unimplemented!(),
     }
 }
 
@@ -164,10 +174,6 @@ pub fn execute_mint() -> Result<Response<EvmMsg>, ContractError> {
     Err(ContractError::NotSupported {})
 }
 
-pub fn update_ownership() -> Result<Response<EvmMsg>, ContractError> {
-    Err(ContractError::NotSupported {})
-}
-
 pub fn execute_extension() -> Result<Response<EvmMsg>, ContractError> {
     Err(ContractError::NotSupported {})
 }
@@ -229,7 +235,7 @@ pub fn query(deps: Deps<EvmQueryWrapper>, env: Env, msg: QueryMsg<CwErc721QueryM
             limit,
         )?)?),
         QueryMsg::Minter {} => Ok(to_json_binary(&query_minter()?)?),
-        QueryMsg::Ownership {} => Ok(to_json_binary(&query_ownership()?)?),
+        QueryMsg::Ownership {} => to_binary(&get_ownership(deps.storage)?),
         QueryMsg::ContractInfo {} => Ok(query_contract_info(deps, env)?),
         QueryMsg::NftInfo { token_id } => Ok(to_json_binary(&query_nft_info(deps, env, token_id)?)?),
         QueryMsg::AllNftInfo { token_id, include_expired: _ } => Ok(to_json_binary(&query_all_nft_info(deps, env, token_id)?)?),
