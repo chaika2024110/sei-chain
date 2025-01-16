@@ -427,7 +427,6 @@ async function createSeiOnlyAccount(amount="100000000000", denom="usei") {
     if (evmAddress && evmAddress !== '') {
         throw new Error(`Account ${keyName} unexpectedly has EVM association`);
     }
-    
     return {
         keyName,
         seiAddress
