@@ -409,6 +409,33 @@ function generateWallet() {
     return wallet.connect(ethers.provider);
 }
 
+async function createSeiOnlyAccount(amount="100000000000", denom="usei") {
+    // Create unique key name using timestamp
+    const keyName = `sei_only_acc_${Date.now()}`;
+    
+    // Create new account
+    await execute(`seid keys add ${keyName} --output json`);
+    
+    // Get Sei address
+    const seiAddress = await getKeySeiAddress(keyName);
+    
+    // Fund the account
+    await fundSeiAddress(seiAddress, amount, denom);
+    
+    // Verify no EVM association
+    const evmAddress = await getEvmAddress(seiAddress);
+    if (evmAddress && evmAddress !== '') {
+        throw new Error(`Account ${keyName} unexpectedly has EVM association`);
+    }
+    
+    return {
+        keyName,
+        seiAddress
+    };
+}
+
+
+
 async function deployEvmContract(name, args=[]) {
     const Contract = await ethers.getContractFactory(name);
     const contract = await Contract.deploy(...args);
@@ -525,6 +552,7 @@ module.exports = {
     deployWasm,
     instantiateWasm,
     createTokenFactoryTokenAndMint,
+    createSeiOnlyAccount,
     execute,
     getSeiAddress,
     getEvmAddress,
