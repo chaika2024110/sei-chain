@@ -41,90 +41,86 @@ describe("Scenarios", function () {
             cw20_token_address: cw20Token
         });
     });
-
     describe("CW20 Token No Pointer Scenarios", function() {
-        it("type 1: should handle Sei address with association", async function() {
-            const assocToken = await deployWasm(WASM.CW20, accounts[1].seiAddress, "cw20-assoc", {
-                name: "Associated Token",
-                symbol: "ASSOC",
+        let noPtrCW20;
+    
+        beforeEach(async function() {
+            // Deploy single test token that will be reused
+            noPtrCW20 = await deployWasm(WASM.CW20, admin.seiAddress, "cw-no-ptr-token", {
+                name: "CW NO PTR Token",
+                symbol: "NOPTRCW",
                 decimals: 6,
                 initial_balances: [
-                    { address: accounts[1].seiAddress, amount: "1000000" }
-                ]
+                    { address: admin.seiAddress, amount: "10000000" }
+                ],
+                mint: {
+                    minter: admin.seiAddress,
+                    cap: "99900000000"
+                }
+            });
+        });
+    
+        it("type 1: owner is Sei address with association", async function() {
+            await executeWasm(noPtrCW20, {
+                transfer: {
+                    recipient: accounts[1].seiAddress,
+                    amount: "1000000"
+                }
             });
             
-            const balance = await queryWasm(assocToken, "balance", {
+            const balance = await queryWasm(noPtrCW20, "balance", {
                 address: accounts[1].seiAddress
             });
             expect(balance.data.balance).to.equal("1000000");
         });
-
-        it("type 2: should handle Sei address without association", async function() {
+    
+        it("type 2: owner is Sei address without association", async function() {
             const {keyName, seiAddress} = await createSeiOnlyAccount();          
             
-            const nonAssocToken = await deployWasm(WASM.CW20, seiAddress, "cw20-non-assoc", {
-                name: "Non-Associated Token",
-                symbol: "NAT",
-                decimals: 6,
-                initial_balances: [
-                    { address: seiAddress, amount: "1000000" }
-                ]
-            }, keyName);
+            await executeWasm(noPtrCW20, {
+                transfer: {
+                    recipient: seiAddress,
+                    amount: "1000000"
+                }
+            });
             
-            const balance = await queryWasm(nonAssocToken, "balance", {
+            const balance = await queryWasm(noPtrCW20, "balance", {
                 address: seiAddress
             });
             expect(balance.data.balance).to.equal("1000000");
         });
-
-        it("type 3: should handle CW20 token as owner", async function() {
-            const ownerToken = await deployWasm(WASM.CW20, admin.seiAddress, "owner-token", {
-                name: "Owner Token",
-                symbol: "OWNER",
-                decimals: 6,
-                initial_balances: [
-                    { address: admin.seiAddress, amount: "1000000" }
-                ]
-            });
-
-            const ownedToken = await deployWasm(WASM.CW20, admin.seiAddress, "owned-token", {
+    
+        it("type 3: owner is CW20 token", async function() {
+            const ownedToken = await deployWasm(WASM.CW20, admin.seiAddress, "cw-owned-token", {
                 name: "Owned Token",
                 symbol: "OWNED",
                 decimals: 6,
-                initial_balances: [
-                    { address: admin.seiAddress, amount: "1000000" }
-                ],
+                initial_balances: [],
                 mint: {
-                    minter: ownerToken,
+                    minter: noPtrCW20,
                     cap: "99900000000"
                 }
             });
-
+    
             const minterInfo = await queryWasm(ownedToken, "minter", {});
-            expect(minterInfo.data.minter).to.equal(ownerToken);
+            expect(minterInfo.data.minter).to.equal(noPtrCW20);
         });
-
-        it("type 4: should handle non-CW20 contract as owner", async function() {
+    
+        it("type 4: owner is non-CW20 contract like bank contract", async function() {
             const bankOwnedToken = await deployWasm(WASM.CW20, admin.seiAddress, "bank-owned-token", {
                 name: "Bank Owned Token",
                 symbol: "BANK",
                 decimals: 6,
-                initial_balances: [
-                    { address: admin.seiAddress, amount: "1000000" }
-                ]
-            });
-
-            await executeWasm(bankOwnedToken, {
-                transfer: {
-                    recipient: bankContractAddr,
-                    amount: "1000000"
+                initial_balances: [],
+                mint: {
+                    minter: bankContractAddr,  // Bank contract as minter/owner
+                    cap: "99900000000"
                 }
             });
 
-            const balance = await queryWasm(bankOwnedToken, "balance", {
-                address: bankContractAddr
-            });
-            expect(balance.data.balance).to.equal("1000000");
+            // Verify bank contract is indeed the minter
+            const minterInfo = await queryWasm(bankOwnedToken, "minter", {});
+            expect(minterInfo.data.minter).to.equal(bankContractAddr);
         });
     });
 
