@@ -75,17 +75,17 @@ describe("Scenarios", function () {
         });
     
         it("type 2: owner is Sei address without association", async function() {
-            const {keyName, seiAddress} = await createSeiOnlyAccount();          
+            const {keyName, seiAddress: seiOnlyAddress} = await createSeiOnlyAccount();          
             
             await executeWasm(noPtrCW20, {
                 transfer: {
-                    recipient: seiAddress,
+                    recipient: seiOnlyAddress,
                     amount: "1000000"
                 }
             });
             
             const balance = await queryWasm(noPtrCW20, "balance", {
-                address: seiAddress
+                address: seiOnlyAddress
             });
             expect(balance.data.balance).to.equal("1000000");
         });
@@ -107,20 +107,16 @@ describe("Scenarios", function () {
         });
     
         it("type 4: owner is non-CW20 contract like bank contract", async function() {
-            const bankOwnedToken = await deployWasm(WASM.CW20, admin.seiAddress, "bank-owned-token", {
-                name: "Bank Owned Token",
-                symbol: "BANK",
-                decimals: 6,
-                initial_balances: [],
-                mint: {
-                    minter: bankContractAddr,  // Bank contract as minter/owner
-                    cap: "99900000000"
+            await executeWasm(cw20Token, {
+                transfer: {
+                    recipient: bankContractAddr,
+                    amount: "1"
                 }
             });
-
-            // Verify bank contract is indeed the minter
-            const minterInfo = await queryWasm(bankOwnedToken, "minter", {});
-            expect(minterInfo.data.minter).to.equal(bankContractAddr);
+            const balance = await queryWasm(cw20Token, "balance", {
+                address: bankContractAddr
+            });
+            expect(balance.data.balance).to.equal("1");
         });
     });
 
@@ -158,7 +154,8 @@ describe("Scenarios", function () {
             const balance = await queryWasm(cw20Token, "balance", {
                 address: bankContractAddr
             });
-            expect("1").to.equal(balance.data.balance);
+            // expect 2 since there's already 1 from previous test
+            expect("2").to.equal(balance.data.balance);
         });
 
         it("type 4: owner is unassociated evm address", async function() {
