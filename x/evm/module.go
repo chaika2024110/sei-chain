@@ -235,6 +235,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 17, func(ctx sdk.Context) error {
+		fmt.Println("RUNNING MIGRATION 17")
 		return migrations.MigrateCWERC721Pointers(ctx, am.keeper)
 	})
 }
