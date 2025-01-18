@@ -165,30 +165,37 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQuerier(am.keeper))
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 2)
 	_ = cfg.RegisterMigration(types.ModuleName, 2, func(ctx sdk.Context) error {
 		return migrations.AddNewParamsAndSetAllToDefaults(ctx, am.keeper)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 3)
 	_ = cfg.RegisterMigration(types.ModuleName, 3, func(ctx sdk.Context) error {
 		return migrations.AddNewParamsAndSetAllToDefaults(ctx, am.keeper)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 4)
 	_ = cfg.RegisterMigration(types.ModuleName, 4, func(ctx sdk.Context) error {
 		return migrations.StoreCWPointerCode(ctx, am.keeper, true, true, false)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 5)
 	_ = cfg.RegisterMigration(types.ModuleName, 5, func(ctx sdk.Context) error {
 		return migrations.FixTotalSupply(ctx, am.keeper)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 6)
 	_ = cfg.RegisterMigration(types.ModuleName, 6, func(ctx sdk.Context) error {
 		return migrations.StoreCWPointerCode(ctx, am.keeper, false, true, false)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 7)
 	_ = cfg.RegisterMigration(types.ModuleName, 7, func(ctx sdk.Context) error {
 		return migrations.StoreCWPointerCode(ctx, am.keeper, false, true, false)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 8)
 	_ = cfg.RegisterMigration(types.ModuleName, 8, func(ctx sdk.Context) error {
 		if err := migrations.MigrateERCNativePointers(ctx, am.keeper); err != nil {
 			return err
@@ -199,6 +206,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 		return migrations.MigrateERCCW721Pointers(ctx, am.keeper)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 9)
 	_ = cfg.RegisterMigration(types.ModuleName, 9, func(ctx sdk.Context) error {
 		if err := migrations.StoreCWPointerCode(ctx, am.keeper, true, true, false); err != nil {
 			return err
@@ -209,34 +217,42 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 		return migrations.MigrateCWERC721Pointers(ctx, am.keeper)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 10)
 	_ = cfg.RegisterMigration(types.ModuleName, 10, func(ctx sdk.Context) error {
 		return migrations.MigrateCastAddressBalances(ctx, am.keeper)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 11)
 	_ = cfg.RegisterMigration(types.ModuleName, 11, func(ctx sdk.Context) error {
 		return migrations.MigrateDeliverTxHookWasmGasLimitParam(ctx, am.keeper)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 12)
 	_ = cfg.RegisterMigration(types.ModuleName, 12, func(ctx sdk.Context) error {
 		return migrations.MigrateBlockBloom(ctx, am.keeper)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 13)
 	_ = cfg.RegisterMigration(types.ModuleName, 13, func(ctx sdk.Context) error {
 		return migrations.MigrateEip1559Params(ctx, am.keeper)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 14)
 	_ = cfg.RegisterMigration(types.ModuleName, 14, func(ctx sdk.Context) error {
 		return migrations.MigrateEip1559MaxFeePerGas(ctx, am.keeper)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 15)
 	_ = cfg.RegisterMigration(types.ModuleName, 15, func(ctx sdk.Context) error {
 		return migrations.StoreCWPointerCode(ctx, am.keeper, false, false, true)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 16)
 	_ = cfg.RegisterMigration(types.ModuleName, 16, func(ctx sdk.Context) error {
 		return migrations.MigrateBaseFeeOffByOne(ctx, am.keeper)
 	})
 
+	fmt.Println("Registering migration for module", types.ModuleName, "version", 17)
 	_ = cfg.RegisterMigration(types.ModuleName, 17, func(ctx sdk.Context) error {
 		fmt.Println("RUNNING MIGRATION 17")
 		return migrations.MigrateCWERC721Pointers(ctx, am.keeper)
