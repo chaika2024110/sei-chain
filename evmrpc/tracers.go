@@ -91,7 +91,12 @@ func (api *SeiDebugAPI) TraceBlockByNumberExcludeTraceFail(ctx context.Context, 
 	return finalTraces, nil
 }
 
-func (api *DebugAPI) isPanicTx(ctx context.Context, hash common.Hash) (isPanic bool, err error) {
+// isPanicOrSyntheticTx returns true if the tx is a panic tx or if it is a synthetic tx. Used in the *ExcludeTraceFail endpoints.
+func (api *DebugAPI) isPanicOrSyntheticTx(ctx context.Context, hash common.Hash) (isPanic bool, err error) {
+	fmt.Println("DEBUG: In isPanicOrSyntheticTx, hash = ", hash)
+	defer func() {
+		fmt.Println("DEBUG: Exiting isPanicOrSyntheticTx for hash = ", hash, ", isPanic = ", isPanic, ", err = ", err)
+	}()
 	sdkctx := api.ctxProvider(LatestCtxHeight)
 	receipt, err := api.keeper.GetReceipt(sdkctx, hash)
 	if err != nil {
@@ -112,21 +117,30 @@ func (api *DebugAPI) isPanicTx(ctx context.Context, hash common.Hash) (isPanic b
 		return false, err
 	}
 
+	found := false
 	result := false
 	for _, trace := range tracersResult {
 		if trace.TxHash == hash {
+			found = true
 			result = len(trace.Error) > 0
 		}
+		// for each tx, add to cache to avoid re-tracing
 		if len(trace.Error) > 0 {
 			api.isPanicCache.Add(trace.TxHash, true)
 		} else {
 			api.isPanicCache.Add(trace.TxHash, false)
 		}
 	}
+
+	if !found { // likely a synthetic tx
+		return true, nil
+	}
+
 	return result, nil
 }
 
 func (api *DebugAPI) TraceBlockByNumber(ctx context.Context, number rpc.BlockNumber, config *tracers.TraceConfig) (result interface{}, returnErr error) {
+	fmt.Println("In TraceBlockByNumber, number = ", number)
 	startTime := time.Now()
 	defer recordMetrics("debug_traceBlockByNumber", api.connectionType, startTime, returnErr == nil)
 	result, returnErr = api.tracersAPI.TraceBlockByNumber(ctx, number, config)
