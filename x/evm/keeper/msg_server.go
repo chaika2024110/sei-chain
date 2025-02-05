@@ -277,19 +277,22 @@ func (server msgServer) RegisterPointer(goCtx context.Context, msg *types.MsgReg
 	case types.PointerType_CW20:
 		// For CW20, the provided address is a bech32 string.
 		currentVersion = cw20.CurrentVersion(ctx)
-		cw20Addr, err := sdk.AccAddressFromBech32(msg.ErcAddress)
+		// Rename the incoming value as cwAddr.
+		cwAddr := msg.ErcAddress
+		parsedAddr, err := sdk.AccAddressFromBech32(cwAddr)
 		if err != nil {
 			return nil, err
 		}
-		existingPointer, existingVersion, exists = server.GetCW20ERC20Pointer(ctx, common.BytesToAddress(cw20Addr))
+		existingPointer, existingVersion, exists = server.GetCW20ERC20Pointer(ctx, common.BytesToAddress(parsedAddr))
 	case types.PointerType_CW721:
 		// For CW721, the provided address is a bech32 string.
 		currentVersion = cw721.CurrentVersion
-		cw721Addr, err := sdk.AccAddressFromBech32(msg.ErcAddress)
+		cwAddr := msg.ErcAddress
+		parsedAddr, err := sdk.AccAddressFromBech32(cwAddr)
 		if err != nil {
 			return nil, err
 		}
-		existingPointer, existingVersion, exists = server.GetCW721ERC721Pointer(ctx, common.BytesToAddress(cw721Addr))
+		existingPointer, existingVersion, exists = server.GetCW721ERC721Pointer(ctx, common.BytesToAddress(parsedAddr))
 	case types.PointerType_ERC1155:
 		// For ERC1155, the provided address is a hex-encoded Ethereum address.
 		currentVersion = erc1155.CurrentVersion
@@ -313,6 +316,7 @@ func (server msgServer) RegisterPointer(goCtx context.Context, msg *types.MsgReg
 	case types.PointerType_ERC721:
 		payload["erc721_address"] = msg.ErcAddress
 	case types.PointerType_CW20:
+		// Use "cw20_address" key since it is a bech32 address.
 		payload["cw20_address"] = msg.ErcAddress
 	case types.PointerType_CW721:
 		payload["cw721_address"] = msg.ErcAddress
@@ -367,31 +371,34 @@ func (server msgServer) RegisterPointer(goCtx context.Context, msg *types.MsgReg
 		))
 	case types.PointerType_CW20:
 		{
-			cw20Addr, err := sdk.AccAddressFromBech32(msg.ErcAddress)
+			// Rename the provided value as cwAddr.
+			cwAddr := msg.ErcAddress
+			parsedAddr, err := sdk.AccAddressFromBech32(cwAddr)
 			if err != nil {
 				return nil, err
 			}
-			err = server.SetCW20ERC20Pointer(ctx, common.BytesToAddress(cw20Addr), pointerAddr.String())
+			err = server.SetCW20ERC20Pointer(ctx, common.BytesToAddress(parsedAddr), pointerAddr.String())
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypePointerRegistered,
 				sdk.NewAttribute(types.AttributeKeyPointerType, "cw20"),
 				sdk.NewAttribute(types.AttributeKeyPointerAddress, pointerAddr.String()),
-				sdk.NewAttribute(types.AttributeKeyPointee, msg.ErcAddress),
+				sdk.NewAttribute(types.AttributeKeyPointee, cwAddr),
 				sdk.NewAttribute(types.AttributeKeyPointerVersion, fmt.Sprintf("%d", cw20.CurrentVersion(ctx))),
 			))
 		}
 	case types.PointerType_CW721:
 		{
-			cw721Addr, err := sdk.AccAddressFromBech32(msg.ErcAddress)
+			cwAddr := msg.ErcAddress
+			parsedAddr, err := sdk.AccAddressFromBech32(cwAddr)
 			if err != nil {
 				return nil, err
 			}
-			err = server.SetCW721ERC721Pointer(ctx, common.BytesToAddress(cw721Addr), pointerAddr.String())
+			err = server.SetCW721ERC721Pointer(ctx, common.BytesToAddress(parsedAddr), pointerAddr.String())
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypePointerRegistered,
 				sdk.NewAttribute(types.AttributeKeyPointerType, "cw721"),
 				sdk.NewAttribute(types.AttributeKeyPointerAddress, pointerAddr.String()),
-				sdk.NewAttribute(types.AttributeKeyPointee, msg.ErcAddress),
+				sdk.NewAttribute(types.AttributeKeyPointee, cwAddr),
 				sdk.NewAttribute(types.AttributeKeyPointerVersion, fmt.Sprintf("%d", cw721.CurrentVersion)),
 			))
 		}
