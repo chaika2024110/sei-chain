@@ -39,7 +39,7 @@ func (s *HashScanner) ScanAllModules() {
 			beginBlockRange := s.blocksInterval * int64(i)
 			endBlockRange := s.blocksInterval * (int64(i) + 1)
 
-			fmt.Printf("Module %s block range %d-%d hash is: %X\n", moduleName, beginBlockRange, endBlockRange, hashResult)
+			fmt.Printf("Module %s height %d hash is: %X\n", moduleName, endBlockRange, hashResult)
 
 			// Write the block range hash to the database only if backfill is enabled
 			if s.backfill {
