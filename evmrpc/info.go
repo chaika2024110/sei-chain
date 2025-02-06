@@ -280,19 +280,20 @@ func (i *InfoAPI) getCongestionData(ctx context.Context, height *int64) (blockGa
 	var requestedHeight int64
 	if height == nil {
 		requestedHeight = i.ctxProvider(LatestCtxHeight).BlockHeight()
-		fmt.Printf("[DEBUG] Getting congestion data for latest height: %d\n", requestedHeight)
+		fmt.Printf("[DEBUG] getCongestionData: Getting data for latest height: %d\n", requestedHeight)
 	} else {
 		requestedHeight = *height
-		fmt.Printf("[DEBUG] Getting congestion data for specific height: %d\n", requestedHeight)
+		fmt.Printf("[DEBUG] getCongestionData: Getting data for specific height: %d\n", requestedHeight)
 	}
 
+	fmt.Printf("[DEBUG] getCongestionData: Calling blockByNumberWithRetry\n")
 	block, err := blockByNumberWithRetry(ctx, i.tmClient, height, 3)
 	if err != nil {
-		fmt.Printf("[DEBUG] Error getting block at height %d: %v\n", requestedHeight, err)
+		fmt.Printf("[DEBUG] getCongestionData: Error returned from blockByNumberWithRetry: %v\n", err)
 		return 0, err
 	}
 
-	fmt.Printf("[DEBUG] Successfully got block at height %d\n", block.Block.Height)
+	fmt.Printf("[DEBUG] getCongestionData: Successfully got block at height %d\n", block.Block.Height)
 
 	totalEVMGasUsed := uint64(0)
 	for _, txbz := range block.Block.Txs {

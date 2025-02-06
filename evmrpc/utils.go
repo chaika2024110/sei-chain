@@ -131,21 +131,34 @@ func blockByNumber(ctx context.Context, client rpcclient.Client, height *int64) 
 }
 
 func blockByNumberWithRetry(ctx context.Context, client rpcclient.Client, height *int64, maxRetries int) (*coretypes.ResultBlock, error) {
+	var heightVal string
+	if height == nil {
+		heightVal = "nil (latest)"
+	} else {
+		heightVal = fmt.Sprintf("%d", *height)
+	}
+	fmt.Printf("[DEBUG] blockByNumberWithRetry: Starting block retrieval for height %s\n", heightVal)
+
 	blockRes, err := client.Block(ctx, height)
 	var retryCount = 0
 	for err != nil && retryCount < maxRetries {
-		// retry once, since application DB and block DB are not committed atomically so it's possible for
-		// receipt to exist while block results aren't committed yet
+		fmt.Printf("[DEBUG] blockByNumberWithRetry: Attempt %d failed with error: %v\n", retryCount+1, err)
 		time.Sleep(1 * time.Second)
 		blockRes, err = client.Block(ctx, height)
 		retryCount++
 	}
+
 	if err != nil {
+		fmt.Printf("[DEBUG] blockByNumberWithRetry: All attempts failed for height %s with final error: %v\n", heightVal, err)
 		return nil, err
 	}
+
 	if blockRes.Block == nil {
-		return nil, fmt.Errorf("could not find block for height %d", height)
+		fmt.Printf("[DEBUG] blockByNumberWithRetry: Block is nil for height %s\n", heightVal)
+		return nil, fmt.Errorf("could not find block for height %s", heightVal)
 	}
+
+	fmt.Printf("[DEBUG] blockByNumberWithRetry: Successfully retrieved block at height %d\n", blockRes.Block.Height)
 	return blockRes, err
 }
 
