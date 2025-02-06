@@ -3,6 +3,7 @@ package evmrpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"slices"
 	"time"
@@ -261,11 +262,24 @@ func (i *InfoAPI) getRewards(block *coretypes.ResultBlock, baseFee *big.Int, rew
 }
 
 func (i *InfoAPI) getCongestionData(ctx context.Context, height *int64) (blockGasUsed uint64, err error) {
-	block, err := blockByNumber(ctx, i.tmClient, height)
+	// Log the requested height
+	var requestedHeight int64
+	if height == nil {
+		requestedHeight = i.ctxProvider(LatestCtxHeight).BlockHeight()
+		fmt.Printf("Getting congestion data for latest height: %d\n", requestedHeight)
+	} else {
+		requestedHeight = *height
+		fmt.Printf("Getting congestion data for specific height: %d\n", requestedHeight)
+	}
+
+	block, err := blockByNumberWithRetry(ctx, i.tmClient, height, 3)
 	if err != nil {
-		// block pruned from tendermint store. Skipping
+		fmt.Printf("Error getting block at height %d: %v\n", requestedHeight, err)
 		return 0, err
 	}
+
+	fmt.Printf("Successfully got block at height %d\n", block.Block.Height)
+
 	totalEVMGasUsed := uint64(0)
 	for _, txbz := range block.Block.Txs {
 		ethtx := getEthTxForTxBz(txbz, i.txDecoder)
