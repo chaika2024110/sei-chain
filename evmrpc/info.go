@@ -304,8 +304,14 @@ func (i *InfoAPI) getCongestionData(ctx context.Context, height *int64) (blockGa
 		}
 
 		fmt.Printf("[DEBUG] getCongestionData: Getting receipt for tx hash: %s\n", ethtx.Hash().String())
-		receipt, err := i.keeper.GetReceipt(i.ctxProvider(LatestCtxHeight), ethtx.Hash())
+		receipt, err := i.keeper.GetReceiptWithRetry(i.ctxProvider(LatestCtxHeight), ethtx.Hash(), 3)
 		if err != nil {
+			if err.Error() == "not found" {
+				// Skip transactions without receipts instead of failing
+				fmt.Printf("[DEBUG] getCongestionData: Receipt not found for tx %s, skipping\n", ethtx.Hash().String())
+				continue
+			}
+			// Return other errors
 			fmt.Printf("[DEBUG] getCongestionData: Error getting receipt for tx %s: %v\n", ethtx.Hash().String(), err)
 			return 0, err
 		}
