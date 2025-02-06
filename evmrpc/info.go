@@ -296,20 +296,23 @@ func (i *InfoAPI) getCongestionData(ctx context.Context, height *int64) (blockGa
 	fmt.Printf("[DEBUG] getCongestionData: Successfully got block at height %d\n", block.Block.Height)
 
 	totalEVMGasUsed := uint64(0)
-	for _, txbz := range block.Block.Txs {
+	for idx, txbz := range block.Block.Txs {
 		ethtx := getEthTxForTxBz(txbz, i.txDecoder)
 		if ethtx == nil {
-			// not evm tx
+			fmt.Printf("[DEBUG] getCongestionData: Tx %d is not an EVM tx, skipping\n", idx)
 			continue
 		}
-		// okay to get from latest since receipt is immutable
+
+		fmt.Printf("[DEBUG] getCongestionData: Getting receipt for tx hash: %s\n", ethtx.Hash().String())
 		receipt, err := i.keeper.GetReceipt(i.ctxProvider(LatestCtxHeight), ethtx.Hash())
 		if err != nil {
+			fmt.Printf("[DEBUG] getCongestionData: Error getting receipt for tx %s: %v\n", ethtx.Hash().String(), err)
 			return 0, err
 		}
-		// We've had issues where is included in a block and fails but then is retried and included in a later block, overwriting the receipt.
-		// This is a temporary fix to ensure we only consider receipts that are included in the block we're querying.
+
 		if receipt.BlockNumber != uint64(block.Block.Height) {
+			fmt.Printf("[DEBUG] getCongestionData: Receipt block number %d doesn't match current block %d\n",
+				receipt.BlockNumber, block.Block.Height)
 			continue
 		}
 		totalEVMGasUsed += receipt.GasUsed
