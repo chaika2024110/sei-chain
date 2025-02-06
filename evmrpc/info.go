@@ -77,21 +77,35 @@ func (i *InfoAPI) Accounts() (result []common.Address, returnErr error) {
 func (i *InfoAPI) GasPrice(ctx context.Context) (result *hexutil.Big, returnErr error) {
 	startTime := time.Now()
 	defer recordMetrics("eth_GasPrice", i.connectionType, startTime, returnErr == nil)
+
+	fmt.Printf("[DEBUG] GasPrice: Starting gas price calculation\n")
+
 	baseFee := i.keeper.GetCurrBaseFeePerGas(i.ctxProvider(LatestCtxHeight)).TruncateInt().BigInt()
+	fmt.Printf("[DEBUG] GasPrice: Got base fee: %s\n", baseFee.String())
+
 	totalGasUsed, err := i.getCongestionData(ctx, nil)
 	if err != nil {
+		fmt.Printf("[DEBUG] GasPrice: Error getting congestion data: %v\n", err)
 		return nil, err
 	}
+	fmt.Printf("[DEBUG] GasPrice: Got total gas used: %d\n", totalGasUsed)
+
 	feeHist, err := i.FeeHistory(ctx, 1, rpc.LatestBlockNumber, []float64{0.5})
 	if err != nil {
+		fmt.Printf("[DEBUG] GasPrice: Error getting fee history: %v\n", err)
 		return nil, err
 	}
+	fmt.Printf("[DEBUG] GasPrice: Got fee history\n")
+
 	var medianRewardPrevBlock *big.Int
 	if len(feeHist.Reward) == 0 || len(feeHist.Reward[0]) == 0 {
 		medianRewardPrevBlock = big.NewInt(defaultPriorityFeePerGas)
+		fmt.Printf("[DEBUG] GasPrice: Using default priority fee\n")
 	} else {
 		medianRewardPrevBlock = feeHist.Reward[0][0].ToInt()
+		fmt.Printf("[DEBUG] GasPrice: Using median reward: %s\n", medianRewardPrevBlock.String())
 	}
+
 	return i.GasPriceHelper(ctx, baseFee, totalGasUsed, medianRewardPrevBlock)
 }
 
@@ -266,19 +280,19 @@ func (i *InfoAPI) getCongestionData(ctx context.Context, height *int64) (blockGa
 	var requestedHeight int64
 	if height == nil {
 		requestedHeight = i.ctxProvider(LatestCtxHeight).BlockHeight()
-		fmt.Printf("Getting congestion data for latest height: %d\n", requestedHeight)
+		fmt.Printf("[DEBUG] Getting congestion data for latest height: %d\n", requestedHeight)
 	} else {
 		requestedHeight = *height
-		fmt.Printf("Getting congestion data for specific height: %d\n", requestedHeight)
+		fmt.Printf("[DEBUG] Getting congestion data for specific height: %d\n", requestedHeight)
 	}
 
 	block, err := blockByNumberWithRetry(ctx, i.tmClient, height, 3)
 	if err != nil {
-		fmt.Printf("Error getting block at height %d: %v\n", requestedHeight, err)
+		fmt.Printf("[DEBUG] Error getting block at height %d: %v\n", requestedHeight, err)
 		return 0, err
 	}
 
-	fmt.Printf("Successfully got block at height %d\n", block.Block.Height)
+	fmt.Printf("[DEBUG] Successfully got block at height %d\n", block.Block.Height)
 
 	totalEVMGasUsed := uint64(0)
 	for _, txbz := range block.Block.Txs {
