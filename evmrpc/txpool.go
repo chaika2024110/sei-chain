@@ -2,6 +2,7 @@ package evmrpc
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 	"strconv"
 	"time"
@@ -33,6 +34,7 @@ func NewTxPoolAPI(tmClient rpcclient.Client, k *keeper.Keeper, ctxProvider func(
 
 // For now, we put all unconfirmed txs in pending and none in queued
 func (t *TxPoolAPI) Content(ctx context.Context) (result map[string]map[string]map[string]*ethapi.RPCTransaction, returnErr error) {
+	fmt.Printf("[DEBUG]: calling txpool.Content\n")
 	startTime := time.Now()
 	defer recordMetrics("sei_content", t.connectionType, startTime, returnErr == nil)
 	content := map[string]map[string]map[string]*ethapi.RPCTransaction{

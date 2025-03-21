@@ -3,6 +3,7 @@ package evmrpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"slices"
 	"time"
@@ -42,6 +43,7 @@ type FeeHistoryResult struct {
 }
 
 func (i *InfoAPI) BlockNumber() hexutil.Uint64 {
+	fmt.Printf("[DEBUG]: calling BlockNumber\n")
 	startTime := time.Now()
 	defer recordMetrics("eth_BlockNumber", i.connectionType, startTime, true)
 	return hexutil.Uint64(i.ctxProvider(LatestCtxHeight).BlockHeight())
@@ -49,18 +51,21 @@ func (i *InfoAPI) BlockNumber() hexutil.Uint64 {
 
 //nolint:revive
 func (i *InfoAPI) ChainId() *hexutil.Big {
+	fmt.Printf("[DEBUG]: calling ChainId\n")
 	startTime := time.Now()
 	defer recordMetrics("eth_ChainId", i.connectionType, startTime, true)
 	return (*hexutil.Big)(i.keeper.ChainID(i.ctxProvider(LatestCtxHeight)))
 }
 
 func (i *InfoAPI) Coinbase() (common.Address, error) {
+	fmt.Printf("[DEBUG]: calling Coinbase\n")
 	startTime := time.Now()
 	defer recordMetrics("eth_Coinbase", i.connectionType, startTime, true)
 	return i.keeper.GetFeeCollectorAddress(i.ctxProvider(LatestCtxHeight))
 }
 
 func (i *InfoAPI) Accounts() (result []common.Address, returnErr error) {
+	fmt.Printf("[DEBUG]: calling Accounts\n")
 	startTime := time.Now()
 	defer recordMetrics("eth_Accounts", i.connectionType, startTime, returnErr == nil)
 	kb, err := getTestKeyring(i.homeDir)
@@ -74,6 +79,7 @@ func (i *InfoAPI) Accounts() (result []common.Address, returnErr error) {
 }
 
 func (i *InfoAPI) GasPrice(ctx context.Context) (result *hexutil.Big, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GasPrice\n")
 	startTime := time.Now()
 	defer recordMetrics("eth_GasPrice", i.connectionType, startTime, returnErr == nil)
 	baseFee := i.keeper.GetCurrBaseFeePerGas(i.ctxProvider(LatestCtxHeight)).TruncateInt().BigInt()
@@ -111,6 +117,7 @@ func (i *InfoAPI) GasPriceHelper(ctx context.Context, baseFee *big.Int, totalGas
 
 // lastBlock is inclusive
 func (i *InfoAPI) FeeHistory(ctx context.Context, blockCount math.HexOrDecimal64, lastBlock rpc.BlockNumber, rewardPercentiles []float64) (result *FeeHistoryResult, returnErr error) {
+	fmt.Printf("[DEBUG]: calling FeeHistory, blockCount: %v, lastBlock: %v, rewardPercentiles: %v\n", blockCount, lastBlock, rewardPercentiles)
 	startTime := time.Now()
 	defer recordMetrics("eth_feeHistory", i.connectionType, startTime, returnErr == nil)
 	result = &FeeHistoryResult{}
@@ -197,9 +204,7 @@ func (i *InfoAPI) FeeHistory(ctx context.Context, blockCount math.HexOrDecimal64
 }
 
 func (i *InfoAPI) MaxPriorityFeePerGas(ctx context.Context) (*hexutil.Big, error) {
-	// Checks the most recent block. If it has high gas used, it will return the reward of the 50% percentile.
-	// Otherwise, since the previous block has low gas used, a user shouldn't need to tip a high amount to get included,
-	// so a default value is returned.
+	fmt.Printf("[DEBUG]: calling MaxPriorityFeePerGas\n")
 	startTime := time.Now()
 	defer recordMetrics("eth_maxPriorityFeePerGas", i.connectionType, startTime, true)
 	totalGasUsed, err := i.getCongestionData(ctx, nil)

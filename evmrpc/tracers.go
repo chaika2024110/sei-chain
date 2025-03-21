@@ -72,6 +72,7 @@ func NewSeiDebugAPI(
 }
 
 func (api *DebugAPI) TraceTransaction(ctx context.Context, hash common.Hash, config *tracers.TraceConfig) (result interface{}, returnErr error) {
+	fmt.Printf("[DEBUG]: calling TraceTransaction, hash: %s, config: %+v\n", hash.Hex(), config)
 	startTime := time.Now()
 	defer recordMetrics("debug_traceTransaction", api.connectionType, startTime, returnErr == nil)
 	result, returnErr = api.tracersAPI.TraceTransaction(ctx, hash, config)
@@ -159,6 +160,7 @@ func (api *DebugAPI) isPanicOrSyntheticTx(ctx context.Context, hash common.Hash)
 }
 
 func (api *DebugAPI) TraceBlockByNumber(ctx context.Context, number rpc.BlockNumber, config *tracers.TraceConfig) (result interface{}, returnErr error) {
+	fmt.Printf("[DEBUG]: calling TraceBlockByNumber, number: %v, config: %+v\n", number, config)
 	startTime := time.Now()
 	defer recordMetrics("debug_traceBlockByNumber", api.connectionType, startTime, returnErr == nil)
 	result, returnErr = api.tracersAPI.TraceBlockByNumber(ctx, number, config)
@@ -166,6 +168,7 @@ func (api *DebugAPI) TraceBlockByNumber(ctx context.Context, number rpc.BlockNum
 }
 
 func (api *DebugAPI) TraceBlockByHash(ctx context.Context, hash common.Hash, config *tracers.TraceConfig) (result interface{}, returnErr error) {
+	fmt.Printf("[DEBUG]: calling TraceBlockByHash, hash: %s, config: %+v\n", hash.Hex(), config)
 	startTime := time.Now()
 	defer recordMetrics("debug_traceBlockByHash", api.connectionType, startTime, returnErr == nil)
 	result, returnErr = api.tracersAPI.TraceBlockByHash(ctx, hash, config)
@@ -173,6 +176,8 @@ func (api *DebugAPI) TraceBlockByHash(ctx context.Context, hash common.Hash, con
 }
 
 func (api *DebugAPI) TraceCall(ctx context.Context, args ethapi.TransactionArgs, blockNrOrHash rpc.BlockNumberOrHash, config *tracers.TraceCallConfig) (result interface{}, returnErr error) {
+	fmt.Printf("[DEBUG]: calling TraceCall, from: %s, to: %v, value: %v, gas: %v, gasPrice: %v, blockNrOrHash: %v, config: %+v\n",
+		args.From.String(), args.To, args.Value, args.Gas, args.GasPrice, blockNrOrHash, config)
 	startTime := time.Now()
 	defer recordMetrics("debug_traceCall", api.connectionType, startTime, returnErr == nil)
 	result, returnErr = api.tracersAPI.TraceCall(ctx, args, blockNrOrHash, config)

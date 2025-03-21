@@ -109,6 +109,7 @@ func (a *SeiBlockAPI) GetBlockByHashExcludeTraceFail(ctx context.Context, blockH
 }
 
 func (a *BlockAPI) GetBlockTransactionCountByNumber(ctx context.Context, number rpc.BlockNumber) (result *hexutil.Uint, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetBlockTransactionCountByNumber, number: %v\n", number)
 	startTime := time.Now()
 	defer recordMetrics(fmt.Sprintf("%s_getBlockTransactionCountByNumber", a.namespace), a.connectionType, startTime, returnErr == nil)
 	numberPtr, err := getBlockNumber(ctx, a.tmClient, number)
@@ -123,6 +124,7 @@ func (a *BlockAPI) GetBlockTransactionCountByNumber(ctx context.Context, number 
 }
 
 func (a *BlockAPI) GetBlockTransactionCountByHash(ctx context.Context, blockHash common.Hash) (result *hexutil.Uint, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetBlockTransactionCountByHash, blockHash: %s\n", blockHash.Hex())
 	startTime := time.Now()
 	defer recordMetrics(fmt.Sprintf("%s_getBlockTransactionCountByHash", a.namespace), a.connectionType, startTime, returnErr == nil)
 	block, err := blockByHashWithRetry(ctx, a.tmClient, blockHash[:], 1)
@@ -133,6 +135,7 @@ func (a *BlockAPI) GetBlockTransactionCountByHash(ctx context.Context, blockHash
 }
 
 func (a *BlockAPI) GetBlockByHash(ctx context.Context, blockHash common.Hash, fullTx bool) (result map[string]interface{}, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetBlockByHash, blockHash: %s, fullTx: %v\n", blockHash.Hex(), fullTx)
 	// used for both: eth_ and sei_ namespaces
 	return a.getBlockByHash(ctx, blockHash, fullTx, a.includeShellReceipts, nil)
 }
@@ -153,6 +156,7 @@ func (a *BlockAPI) getBlockByHash(ctx context.Context, blockHash common.Hash, fu
 }
 
 func (a *BlockAPI) GetBlockByNumber(ctx context.Context, number rpc.BlockNumber, fullTx bool) (result map[string]interface{}, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetBlockByNumber, number: %v, fullTx: %v\n", number, fullTx)
 	startTime := time.Now()
 	defer recordMetrics(fmt.Sprintf("%s_getBlockByNumber", a.namespace), a.connectionType, startTime, returnErr == nil)
 	if number == 0 {
@@ -209,6 +213,7 @@ func (a *BlockAPI) getBlockByNumber(
 }
 
 func (a *BlockAPI) GetBlockReceipts(ctx context.Context, blockNrOrHash rpc.BlockNumberOrHash) (result []map[string]interface{}, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetBlockReceipts, blockNrOrHash: %v\n", blockNrOrHash)
 	startTime := time.Now()
 	defer recordMetrics(fmt.Sprintf("%s_getBlockReceipts", a.namespace), a.connectionType, startTime, returnErr == nil)
 	// Get height from params

@@ -53,6 +53,7 @@ func NewSendAPI(tmClient rpcclient.Client, txConfig client.TxConfig, sendConfig 
 }
 
 func (s *SendAPI) SendRawTransaction(ctx context.Context, input hexutil.Bytes) (hash common.Hash, err error) {
+	fmt.Printf("[DEBUG]: calling SendRawTransaction, input: %x\n", input)
 	startTime := time.Now()
 	defer recordMetrics("eth_sendRawTransaction", s.connectionType, startTime, err == nil)
 	tx := new(ethtypes.Transaction)
@@ -166,6 +167,8 @@ func (s *SendAPI) simulateTx(ctx context.Context, tx *ethtypes.Transaction) (est
 }
 
 func (s *SendAPI) SignTransaction(_ context.Context, args apitypes.SendTxArgs, _ *string) (result *ethapi.SignTransactionResult, returnErr error) {
+	fmt.Printf("[DEBUG]: calling SignTransaction, from: %s, to: %v, value: %v, gas: %v, gasPrice: %v\n",
+		args.From.String(), args.To, args.Value, args.Gas, args.GasPrice)
 	startTime := time.Now()
 	defer recordMetrics("eth_signTransaction", s.connectionType, startTime, returnErr == nil)
 	var unsignedTx = args.ToTransaction()
@@ -181,6 +184,8 @@ func (s *SendAPI) SignTransaction(_ context.Context, args apitypes.SendTxArgs, _
 }
 
 func (s *SendAPI) SendTransaction(ctx context.Context, args ethapi.TransactionArgs) (result common.Hash, returnErr error) {
+	fmt.Printf("[DEBUG]: calling SendTransaction, from: %s, to: %v, value: %v, gas: %v, gasPrice: %v\n",
+		args.From.String(), args.To, args.Value, args.Gas, args.GasPrice)
 	startTime := time.Now()
 	defer recordMetrics("eth_sendTransaction", s.connectionType, startTime, returnErr == nil)
 	if err := args.SetDefaults(ctx, s.backend); err != nil {

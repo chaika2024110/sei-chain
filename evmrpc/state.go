@@ -35,6 +35,7 @@ func NewStateAPI(tmClient rpcclient.Client, k *keeper.Keeper, ctxProvider func(i
 }
 
 func (a *StateAPI) GetBalance(ctx context.Context, address common.Address, blockNrOrHash rpc.BlockNumberOrHash) (result *hexutil.Big, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetBalance, address: %s, blockNrOrHash: %v\n", address.Hex(), blockNrOrHash)
 	startTime := time.Now()
 	defer recordMetrics("eth_getBalance", a.connectionType, startTime, returnErr == nil)
 	block, err := GetBlockNumberByNrOrHash(ctx, a.tmClient, blockNrOrHash)
@@ -53,6 +54,7 @@ func (a *StateAPI) GetBalance(ctx context.Context, address common.Address, block
 }
 
 func (a *StateAPI) GetCode(ctx context.Context, address common.Address, blockNrOrHash rpc.BlockNumberOrHash) (result hexutil.Bytes, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetCode, address: %s, blockNrOrHash: %v\n", address.Hex(), blockNrOrHash)
 	startTime := time.Now()
 	defer recordMetrics("eth_getCode", a.connectionType, startTime, returnErr == nil)
 	block, err := GetBlockNumberByNrOrHash(ctx, a.tmClient, blockNrOrHash)
@@ -71,6 +73,7 @@ func (a *StateAPI) GetCode(ctx context.Context, address common.Address, blockNrO
 }
 
 func (a *StateAPI) GetStorageAt(ctx context.Context, address common.Address, hexKey string, blockNrOrHash rpc.BlockNumberOrHash) (result hexutil.Bytes, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetStorageAt, address: %s, hexKey: %s, blockNrOrHash: %v\n", address.Hex(), hexKey, blockNrOrHash)
 	startTime := time.Now()
 	defer recordMetrics("eth_getStorageAt", a.connectionType, startTime, returnErr == nil)
 	block, err := GetBlockNumberByNrOrHash(ctx, a.tmClient, blockNrOrHash)
@@ -103,6 +106,7 @@ type ProofResult struct {
 }
 
 func (a *StateAPI) GetProof(ctx context.Context, address common.Address, storageKeys []string, blockNrOrHash rpc.BlockNumberOrHash) (result *ProofResult, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetProof, address: %s, storageKeys: %v, blockNrOrHash: %v\n", address.Hex(), storageKeys, blockNrOrHash)
 	startTime := time.Now()
 	defer recordMetrics("eth_getProof", a.connectionType, startTime, returnErr == nil)
 	var block *coretypes.ResultBlock
@@ -158,6 +162,7 @@ OUTER:
 }
 
 func (a *StateAPI) GetNonce(_ context.Context, address common.Address) uint64 {
+	fmt.Printf("[DEBUG]: calling GetNonce, address: %s\n", address.Hex())
 	startTime := time.Now()
 	defer recordMetrics("eth_getNonce", a.connectionType, startTime, true)
 	return a.keeper.GetNonce(a.ctxProvider(LatestCtxHeight), address)

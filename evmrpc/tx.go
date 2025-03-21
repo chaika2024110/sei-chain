@@ -74,6 +74,7 @@ func getTransactionReceipt(
 	excludePanicTxs bool,
 	isPanicTx func(ctx context.Context, hash common.Hash) (bool, error),
 ) (result map[string]interface{}, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetTransactionReceipt, hash: %s, excludePanicTxs: %v\n", hash.Hex(), excludePanicTxs)
 	startTime := time.Now()
 	defer recordMetrics("eth_getTransactionReceipt", t.connectionType, startTime, returnErr == nil)
 	sdkctx := t.ctxProvider(LatestCtxHeight)
@@ -158,6 +159,7 @@ func (t *TransactionAPI) GetVMError(hash common.Hash) (result string, returnErr 
 }
 
 func (t *TransactionAPI) GetTransactionByBlockNumberAndIndex(ctx context.Context, blockNr rpc.BlockNumber, index hexutil.Uint) (result *ethapi.RPCTransaction, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetTransactionByBlockNumberAndIndex, blockNr: %v, index: %v\n", blockNr, index)
 	startTime := time.Now()
 	defer recordMetrics("eth_getTransactionByBlockNumberAndIndex", t.connectionType, startTime, returnErr == nil)
 	blockNumber, err := getBlockNumber(ctx, t.tmClient, blockNr)
@@ -172,6 +174,7 @@ func (t *TransactionAPI) GetTransactionByBlockNumberAndIndex(ctx context.Context
 }
 
 func (t *TransactionAPI) GetTransactionByBlockHashAndIndex(ctx context.Context, blockHash common.Hash, index hexutil.Uint) (result *ethapi.RPCTransaction, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetTransactionByBlockHashAndIndex, blockHash: %s, index: %v\n", blockHash.Hex(), index)
 	startTime := time.Now()
 	defer recordMetrics("eth_getTransactionByBlockHashAndIndex", t.connectionType, startTime, returnErr == nil)
 	block, err := blockByHash(ctx, t.tmClient, blockHash[:])
@@ -182,6 +185,7 @@ func (t *TransactionAPI) GetTransactionByBlockHashAndIndex(ctx context.Context, 
 }
 
 func (t *TransactionAPI) GetTransactionByHash(ctx context.Context, hash common.Hash) (result *ethapi.RPCTransaction, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetTransactionByHash, hash: %s\n", hash.Hex())
 	startTime := time.Now()
 	defer recordMetrics("eth_getTransactionByHash", t.connectionType, startTime, returnErr == nil)
 	sdkCtx := t.ctxProvider(LatestCtxHeight)
@@ -245,6 +249,7 @@ func (t *TransactionAPI) GetTransactionErrorByHash(_ context.Context, hash commo
 }
 
 func (t *TransactionAPI) GetTransactionCount(ctx context.Context, address common.Address, blockNrOrHash rpc.BlockNumberOrHash) (result *hexutil.Uint64, returnErr error) {
+	fmt.Printf("[DEBUG]: calling GetTransactionCount, address: %s, blockNrOrHash: %v\n", address.Hex(), blockNrOrHash)
 	startTime := time.Now()
 	defer recordMetrics("eth_getTransactionCount", t.connectionType, startTime, returnErr == nil)
 	sdkCtx := t.ctxProvider(LatestCtxHeight)
