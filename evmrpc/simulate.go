@@ -87,6 +87,7 @@ func (s *SimulationAPI) CreateAccessList(ctx context.Context, args ethapi.Transa
 }
 
 func (s *SimulationAPI) EstimateGas(ctx context.Context, args ethapi.TransactionArgs, blockNrOrHash *rpc.BlockNumberOrHash, overrides *ethapi.StateOverride) (result hexutil.Uint64, returnErr error) {
+	fmt.Printf("[DEBUG]: calling eth_estimateGas, args: %+v, blockNrOrHash: %v, overrides: %+v\n", args, blockNrOrHash, overrides)
 	startTime := time.Now()
 	defer recordMetricsWithError("eth_estimateGas", s.connectionType, startTime, returnErr)
 	bNrOrHash := rpc.BlockNumberOrHashWithNumber(rpc.LatestBlockNumber)
@@ -111,6 +112,7 @@ func (s *SimulationAPI) EstimateGasAfterCalls(ctx context.Context, args ethapi.T
 }
 
 func (s *SimulationAPI) Call(ctx context.Context, args ethapi.TransactionArgs, blockNrOrHash *rpc.BlockNumberOrHash, overrides *ethapi.StateOverride, blockOverrides *ethapi.BlockOverrides) (result hexutil.Bytes, returnErr error) {
+	fmt.Printf("[DEBUG]: calling eth_call, args: %+v, blockNrOrHash: %v, overrides: %+v, blockOverrides: %+v\n", args, blockNrOrHash, overrides, blockOverrides)
 	startTime := time.Now()
 	defer recordMetrics("eth_call", s.connectionType, startTime, returnErr == nil)
 	defer func() {
