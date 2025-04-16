@@ -192,7 +192,9 @@ func (p Precompile) AddNative(ctx sdk.Context, method *ethabi.Method, caller com
 		return
 	}
 	if hooks != nil {
-		hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		if hooks.OnCodeChange != nil {
+			hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		}
 	}
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypePointerRegistered, sdk.NewAttribute(types.AttributeKeyPointerType, "native"),
@@ -249,7 +251,9 @@ func (p Precompile) AddCW20(ctx sdk.Context, method *ethabi.Method, caller commo
 		return
 	}
 	if hooks != nil {
-		hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		if hooks.OnCodeChange != nil {
+			hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		}
 	}
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypePointerRegistered, sdk.NewAttribute(types.AttributeKeyPointerType, "cw20"),
@@ -306,7 +310,9 @@ func (p Precompile) AddCW721(ctx sdk.Context, method *ethabi.Method, caller comm
 		return
 	}
 	if hooks != nil {
-		hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		if hooks.OnCodeChange != nil {
+			hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		}
 	}
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypePointerRegistered, sdk.NewAttribute(types.AttributeKeyPointerType, "cw721"),

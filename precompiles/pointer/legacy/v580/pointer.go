@@ -120,7 +120,9 @@ func (p PrecompileExecutor) AddNative(ctx sdk.Context, method *ethabi.Method, ca
 		return nil, 0, err
 	}
 	if hooks != nil {
-		hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		if hooks.OnCodeChange != nil {
+			hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		}
 	}
 	ret, err = method.Outputs.Pack(contractAddr)
 	remainingGas = pcommon.GetRemainingGas(ctx, p.evmKeeper)
@@ -154,7 +156,9 @@ func (p PrecompileExecutor) AddCW20(ctx sdk.Context, method *ethabi.Method, call
 		return nil, 0, err
 	}
 	if hooks != nil {
-		hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		if hooks.OnCodeChange != nil {
+			hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		}
 	}
 	ret, err = method.Outputs.Pack(contractAddr)
 	remainingGas = pcommon.GetRemainingGas(ctx, p.evmKeeper)
@@ -188,7 +192,9 @@ func (p PrecompileExecutor) AddCW721(ctx sdk.Context, method *ethabi.Method, cal
 		return nil, 0, err
 	}
 	if hooks != nil {
-		hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		if hooks.OnCodeChange != nil {
+			hooks.OnCodeChange(contractAddr, ethtypes.EmptyCodeHash, nil, p.evmKeeper.GetCodeHash(ctx, contractAddr), p.evmKeeper.GetCode(ctx, contractAddr))
+		}
 	}
 	ret, err = method.Outputs.Pack(contractAddr)
 	remainingGas = pcommon.GetRemainingGas(ctx, p.evmKeeper)

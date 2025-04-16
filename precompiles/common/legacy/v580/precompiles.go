@@ -212,8 +212,10 @@ func HandlePaymentUsei(ctx sdk.Context, precompileAddr sdk.AccAddress, payer sdk
 		return sdk.Coin{}, err
 	}
 	if hooks != nil {
-		hooks.OnBalanceChange(evmKeeper.GetEVMAddressOrDefault(ctx, precompileAddr), prevSenderBalance, new(big.Int).Sub(prevSenderBalance, value), tracing.BalanceChangeTransfer)
-		hooks.OnBalanceChange(evmKeeper.GetEVMAddressOrDefault(ctx, payer), prevReceiverBalance, new(big.Int).Sub(prevReceiverBalance, value), tracing.BalanceChangeTransfer)
+		if hooks.OnBalanceChange != nil {
+			hooks.OnBalanceChange(evmKeeper.GetEVMAddressOrDefault(ctx, precompileAddr), prevSenderBalance, new(big.Int).Sub(prevSenderBalance, value), tracing.BalanceChangeTransfer)
+			hooks.OnBalanceChange(evmKeeper.GetEVMAddressOrDefault(ctx, payer), prevReceiverBalance, new(big.Int).Sub(prevReceiverBalance, value), tracing.BalanceChangeTransfer)
+		}
 	}
 	return coin, nil
 }
@@ -231,8 +233,10 @@ func HandlePaymentUseiWei(ctx sdk.Context, precompileAddr sdk.AccAddress, payer 
 		return sdk.Int{}, sdk.Int{}, err
 	}
 	if hooks != nil {
-		hooks.OnBalanceChange(evmKeeper.GetEVMAddressOrDefault(ctx, precompileAddr), prevSenderBalance, new(big.Int).Sub(prevSenderBalance, value), tracing.BalanceChangeTransfer)
-		hooks.OnBalanceChange(evmKeeper.GetEVMAddressOrDefault(ctx, payer), prevReceiverBalance, new(big.Int).Sub(prevReceiverBalance, value), tracing.BalanceChangeTransfer)
+		if hooks.OnBalanceChange != nil {
+			hooks.OnBalanceChange(evmKeeper.GetEVMAddressOrDefault(ctx, precompileAddr), prevSenderBalance, new(big.Int).Sub(prevSenderBalance, value), tracing.BalanceChangeTransfer)
+			hooks.OnBalanceChange(evmKeeper.GetEVMAddressOrDefault(ctx, payer), prevReceiverBalance, new(big.Int).Sub(prevReceiverBalance, value), tracing.BalanceChangeTransfer)
+		}
 	}
 	return usei, wei, nil
 }
