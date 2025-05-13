@@ -9,7 +9,7 @@ import (
 	"github.com/sei-protocol/sei-chain/x/evm/types"
 )
 
-const BaseDenom = "usei"
+const BaseDenom = "usnp"
 
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.Paramstore.SetParamSet(ctx, &params)

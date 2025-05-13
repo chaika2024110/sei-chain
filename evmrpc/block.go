@@ -386,7 +386,7 @@ func EncodeTmBlock(
 					}
 					recipientEvmAddr := k.GetEVMAddressOrDefault(ctx, recipientSeiAddr)
 					rpcTx.To = &recipientEvmAddr
-					amt := m.Amount.AmountOf("usei").Mul(state.SdkUseiToSweiMultiplier)
+					amt := m.Amount.AmountOf("usnp").Mul(state.SdkUseiToSweiMultiplier)
 					rpcTx.Value = (*hexutil.Big)(amt.BigInt())
 					transactions = append(transactions, rpcTx)
 				}

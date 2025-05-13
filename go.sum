@@ -250,6 +250,8 @@ github.com/cespare/xxhash/v2 v2.1.1/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XL
 github.com/cespare/xxhash/v2 v2.1.2/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/cespare/xxhash/v2 v2.2.0 h1:DC2CZ1Ep5Y4k3ZQ899DldepgrayRUGE6BBZ/cd9Cj44=
 github.com/cespare/xxhash/v2 v2.2.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
+github.com/chaika2024110/sei-cosmos v0.3.57-usnp h1:6wE/Fyo7GDnwKkS5kn7Wd19Ok630sxuDU9aDYR1notY=
+github.com/chaika2024110/sei-cosmos v0.3.57-usnp/go.mod h1:Z+0XynKuhMu9m2XHIvUBwk4A+iLPc4YnzFlabpMOWqw=
 github.com/charithe/durationcheck v0.0.9 h1:mPP4ucLrf/rKZiIG/a9IPXHGlh8p4CzgpyTy6EEutYk=
 github.com/charithe/durationcheck v0.0.9/go.mod h1:SSbRIBVfMjCi/kEB6K65XEA83D6prSM8ap1UCpNKtgg=
 github.com/chavacava/garif v0.0.0-20220316182200-5cad0b5181d4 h1:tFXjAxje9thrTF4h57Ckik+scJjTWdwAtZqZPtOT48M=
@@ -1348,8 +1350,6 @@ github.com/sei-protocol/go-ethereum v1.13.5-sei-27 h1:TYZLAoKSfE2N/63sFTTWh3djH5
 github.com/sei-protocol/go-ethereum v1.13.5-sei-27/go.mod h1:kcRZmuzRn1lVejiFNTz4l4W7imnpq1bDAnuKS/RyhbQ=
 github.com/sei-protocol/goutils v0.0.2 h1:Bfa7Sv+4CVLNM20QcpvGb81B8C5HkQC/kW1CQpIbXDA=
 github.com/sei-protocol/goutils v0.0.2/go.mod h1:iYE2DuJfEnM+APPehr2gOUXfuLuPsVxorcDO+Tzq9q8=
-github.com/sei-protocol/sei-cosmos v0.3.56-0.20250313190228-9fb9a4fd8636 h1:9RMstipSzuAgpwz8IcM+LvZB2frXSBolu8CRj660fI4=
-github.com/sei-protocol/sei-cosmos v0.3.56-0.20250313190228-9fb9a4fd8636/go.mod h1:Z+0XynKuhMu9m2XHIvUBwk4A+iLPc4YnzFlabpMOWqw=
 github.com/sei-protocol/sei-db v0.0.48 h1:BgSF5jq9hiPz0JMmbf5f34CnZijqTO+3zOo8IG62lFY=
 github.com/sei-protocol/sei-db v0.0.48/go.mod h1:m5g7p0QeAS3dNJHIl28zQpzOgxQmvYqPb7t4hwgIOCA=
 github.com/sei-protocol/sei-iavl v0.2.0 h1:OisPjXiDT+oe+aeckzDEFgkZCYuUjHgs/PP8DPicN+I=
