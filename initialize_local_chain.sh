@@ -12,7 +12,7 @@ fi
 
 # set key name
 keyname=gen-node
-chainid=snp-testnet
+chainid=snp-chain
 # Uncomment the following if you'd like to run jaeger
 #docker stop jaeger
 #docker rm jaeger
@@ -44,7 +44,7 @@ echo "Building..."
 # add validator information to genesis file
 KEY=$(jq '.pub_key' ~/.snp/config/priv_validator_key.json -c)
 jq '.validators = [{}]' ~/.snp/config/genesis.json > ~/.snp/config/tmp_genesis.json
-jq '.validators[0] += {"power":"70000"}' ~/.snp/config/tmp_genesis.json > ~/.snp/config/tmp_genesis_2.json
+jq '.validators[0] += {"power":"7000000000"}' ~/.snp/config/tmp_genesis.json > ~/.snp/config/tmp_genesis_2.json
 jq '.validators[0] += {"pub_key":'$KEY'}' ~/.snp/config/tmp_genesis_2.json > ~/.snp/config/tmp_genesis_3.json
 mv ~/.snp/config/tmp_genesis_3.json ~/.snp/config/genesis.json && rm ~/.snp/config/tmp_genesis.json && rm ~/.snp/config/tmp_genesis_2.json
 
