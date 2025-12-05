@@ -1,0 +1,35 @@
+[Unit]
+Description=SNP Chain 节点服务
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/root/
+ExecStart=/root/go/bin/seid start --home /root/.snp
+
+# 重启策略
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65535
+
+# 安全设置
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=false
+ReadWritePaths=/root/.snp
+
+# 日志配置
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=snp-node
+
+# 资源限制（根据服务器调整）
+LimitNOFILE=65535
+LimitNPROC=65535
+
+[Install]
+WantedBy=multi-user.target

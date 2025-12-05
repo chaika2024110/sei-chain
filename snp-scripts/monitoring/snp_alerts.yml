@@ -1,0 +1,148 @@
+# Prometheus 告警规则 - SNP Chain 节点
+# 
+# 此文件定义 SNP 节点的告警条件
+# 当条件满足时，告警将发送到 Alertmanager
+
+groups:
+  - name: snp_node_alerts
+    interval: 30s
+    rules:
+      # 节点宕机
+      - alert: 节点宕机
+        expr: up{job="snp-node"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SNP 节点已宕机"
+          description: "节点 {{ $labels.node }} 已宕机超过 2 分钟。"
+
+      # 节点未同步
+      - alert: 节点未同步
+        expr: tendermint_consensus_latest_block_height{job="snp-node"} - tendermint_consensus_latest_block_height{job="snp-node"} offset 5m < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SNP 节点未同步"
+          description: "节点 {{ $labels.node }} 在过去 5 分钟内未产生新区块。"
+
+      # 对等节点数量过少
+      - alert: 对等节点数量少
+        expr: tendermint_p2p_peers{job="snp-node"} < 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SNP 节点对等节点数量过少"
+          description: "节点 {{ $labels.node }} 仅连接了 {{ $value }} 个对等节点。"
+
+      # 内存使用率高
+      - alert: 内存使用率高
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SNP 节点内存使用率高"
+          description: "节点 {{ $labels.node }} 的内存使用率达到 {{ $value | humanize }}%。"
+
+      # CPU 使用率高
+      - alert: CPU使用率高
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SNP 节点 CPU 使用率高"
+          description: "节点 {{ $labels.node }} 的 CPU 使用率达到 {{ $value | humanize }}%。"
+
+      # 磁盘空间不足
+      - alert: 磁盘空间不足
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SNP 节点磁盘空间不足"
+          description: "节点 {{ $labels.node }} 的磁盘空间仅剩 {{ $value | humanize }}%。"
+
+      # 验证者丢失区块
+      - alert: 验证者丢失区块
+        expr: increase(tendermint_consensus_validator_missed_blocks[1h]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "验证者丢失区块"
+          description: "验证者 {{ $labels.node }} 在过去 1 小时内丢失了 {{ $value }} 个区块。"
+
+      # 节点重启
+      - alert: 节点重启
+        expr: time() - node_boot_time_seconds < 300
+        for: 1m
+        labels:
+          severity: info
+        annotations:
+          summary: "SNP 节点最近重启"
+          description: "节点 {{ $labels.node }} 在过去 5 分钟内重启。"
+
+      # 区块时间慢
+      - alert: 区块生产慢
+        expr: rate(tendermint_consensus_latest_block_height[5m]) < 0.15
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "区块生产速度慢"
+          description: "节点 {{ $labels.node }} 的区块生产速度为 {{ $value | humanize }} 块/秒，低于预期。"
+
+      # Mempool 过大
+      - alert: Mempool过大
+        expr: tendermint_mempool_size > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Mempool 交易数量过多"
+          description: "节点 {{ $labels.node }} 的 mempool 中有 {{ $value }} 个待处理交易。"
+
+      # 投票权变化
+      - alert: 投票权变化
+        expr: abs(delta(tendermint_consensus_validator_power[1h])) > 100
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "验证者投票权发生变化"
+          description: "验证者 {{ $labels.node }} 的投票权在过去 1 小时内变化了 {{ $value }}。"
+
+      # 网络延迟高
+      - alert: 网络延迟高
+        expr: tendermint_p2p_peer_receive_bytes_total - tendermint_p2p_peer_receive_bytes_total offset 1m < 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "网络接收速率低"
+          description: "节点 {{ $labels.node }} 的网络接收速率异常低。"
+
+      # 节点落后
+      - alert: 节点落后
+        expr: tendermint_consensus_latest_block_height - tendermint_consensus_block_interval_seconds > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "节点落后于网络"
+          description: "节点 {{ $labels.node }} 的区块高度落后。"
+
+      # 吞吐量低
+      - alert: 吞吐量低
+        expr: rate(tendermint_consensus_num_txs[5m]) < 1
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: "交易吞吐量低"
+          description: "节点 {{ $labels.node }} 的交易吞吐量为 {{ $value | humanize }} txs/秒。"

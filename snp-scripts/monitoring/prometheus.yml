@@ -1,0 +1,63 @@
+# Prometheus 配置 - SNP Chain 节点监控
+# 
+# 安装步骤:
+# 1. 安装 Prometheus: https://prometheus.io/download/
+# 2. 将此文件复制到 Prometheus 目录
+# 3. 更新 targets 为您的实际节点地址
+# 4. 重启 Prometheus
+
+global:
+  scrape_interval: 15s # 每 15 秒抓取一次指标
+  evaluation_interval: 15s # 每 15 秒评估一次规则
+  external_labels:
+    cluster: 'snp-mainnet'
+    environment: 'production'
+
+# Alertmanager 配置 (可选)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - 'alertmanager:9093'
+
+# 加载规则文件并定期评估
+rule_files:
+  - "snp_alerts.yml"
+
+# 抓取配置
+scrape_configs:
+  # SNP 节点指标
+  - job_name: 'snp-node'
+    static_configs:
+      - targets: ['localhost:26660']  # Tendermint Prometheus 端点
+        labels:
+          node: 'validator-1'
+          role: 'validator'
+    
+    # 指标重标记 (可选)
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'go_.*'
+        action: drop  # 如不需要，删除 Go 运行时指标
+
+  # 系统指标 (需要 node_exporter)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['localhost:9100']
+        labels:
+          node: 'validator-1'
+    
+  # 进程指标 (需要 process-exporter)
+  - job_name: 'process-exporter'
+    static_configs:
+      - targets: ['localhost:9256']
+        labels:
+          node: 'validator-1'
+
+  # 如果运行多个验证者，在此添加
+  # - job_name: 'snp-node-2'
+  #   static_configs:
+  #     - targets: ['node2.example.com:26660']
+  #       labels:
+  #         node: 'validator-2'
+  #         role: 'validator'

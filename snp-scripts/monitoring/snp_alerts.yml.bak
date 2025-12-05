@@ -1,0 +1,151 @@
+# Prometheus Alert Rules for SNP Chain Node
+# 
+# This file defines alert conditions for your SNP node
+# Alerts will be sent to Alertmanager when conditions are met
+
+groups:
+  - name: snp_node_alerts
+    interval: 30s
+    rules:
+      # Node is down
+      - alert: NodeDown
+        expr: up{job="snp-node"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SNP Node is down"
+          description: "Node {{ $labels.node }} has been down for more than 2 minutes."
+
+      # Node is not syncing
+      - alert: NodeNotSyncing
+        expr: tendermint_consensus_latest_block_height{job="snp-node"} - tendermint_consensus_latest_block_height{job="snp-node"} offset 5m < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SNP Node is not syncing"
+          description: "Node {{ $labels.node }} has not produced new blocks in the last 5 minutes."
+
+      # Too few peers
+      - alert: LowPeerCount
+        expr: tendermint_p2p_peers{job="snp-node"} < 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SNP Node has too few peers"
+          description: "Node {{ $labels.node }} has only {{ $value }} peers connected."
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on SNP node"
+          description: "Memory usage on node {{ $labels.node }} is at {{ $value | humanize }}%."
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on SNP node"
+          description: "CPU usage on node {{ $labels.node }} is at {{ $value | humanize }}%."
+
+      # High disk usage
+      - alert: HighDiskUsage
+        expr: (node_filesystem_size_bytes{mountpoint="/"} - node_filesystem_avail_bytes{mountpoint="/"}) / node_filesystem_size_bytes{mountpoint="/"} * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk usage on SNP node"
+          description: "Disk usage on node {{ $labels.node }} is at {{ $value | humanize }}%."
+
+      # Block production slow
+      - alert: SlowBlockProduction
+        expr: rate(tendermint_consensus_latest_block_height{job="snp-node"}[5m]) < 0.15
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SNP Node block production is slow"
+          description: "Block production rate on node {{ $labels.node }} is {{ $value | humanize }} blocks/sec."
+
+      # Validator missing blocks
+      - alert: ValidatorMissingBlocks
+        expr: increase(tendermint_consensus_missing_validators_power{job="snp-node"}[10m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SNP Validator is missing blocks"
+          description: "Validator on node {{ $labels.node }} has missed blocks in the last 10 minutes."
+
+      # High transaction failure rate
+      - alert: HighTransactionFailureRate
+        expr: rate(tendermint_mempool_failed_txs{job="snp-node"}[5m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High transaction failure rate on SNP node"
+          description: "Transaction failure rate on node {{ $labels.node }} is {{ $value | humanize }}."
+
+      # Mempool size is large
+      - alert: LargeMempoolSize
+        expr: tendermint_mempool_size{job="snp-node"} > 5000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SNP Node mempool is large"
+          description: "Mempool size on node {{ $labels.node }} is {{ $value }} transactions."
+
+      # Node has been restarted recently
+      - alert: NodeRecentlyRestarted
+        expr: time() - node_boot_time_seconds < 300
+        for: 1m
+        labels:
+          severity: info
+        annotations:
+          summary: "SNP Node was recently restarted"
+          description: "Node {{ $labels.node }} was restarted less than 5 minutes ago."
+
+      # Clock skew detected
+      - alert: ClockSkew
+        expr: abs(node_time_seconds - timestamp(node_time_seconds)) > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Clock skew detected on SNP node"
+          description: "Clock on node {{ $labels.node }} is {{ $value }} seconds off."
+
+  - name: snp_business_metrics
+    interval: 1m
+    rules:
+      # Low transaction throughput
+      - alert: LowTransactionThroughput
+        expr: rate(tendermint_consensus_total_txs{job="snp-node"}[5m]) < 1
+        for: 30m
+        labels:
+          severity: info
+        annotations:
+          summary: "Low transaction throughput on SNP chain"
+          description: "Transaction throughput on {{ $labels.node }} is {{ $value | humanize }} tx/sec."
+
+      # Validator voting power change
+      - alert: ValidatorVotingPowerChanged
+        expr: abs(delta(tendermint_consensus_validators_power{job="snp-node"}[1h])) > 1000000
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "Validator voting power changed significantly"
+          description: "Voting power on {{ $labels.node }} changed by {{ $value }} in the last hour."
