@@ -185,12 +185,12 @@ log_info "添加创世账户..."
 for ACCOUNT_CONFIG in "${GENESIS_ACCOUNTS[@]}"; do
     IFS=':' read -r ADDRESS BALANCE <<< "$ACCOUNT_CONFIG"
     log_info "  $ADDRESS: $BALANCE$DENOM"
-    $SEID_BINARY genesis add-genesis-account $ADDRESS ${BALANCE}${DENOM} --home $CHAIN_HOME
+    $SEID_BINARY add-genesis-account $ADDRESS ${BALANCE}${DENOM} --home $CHAIN_HOME
 done
 
 # 添加验证者账户余额
 log_info "添加验证者账户: $VALIDATOR_ADDRESS"
-$SEID_BINARY genesis add-genesis-account $VALIDATOR_ADDRESS ${VALIDATOR_BALANCE}${DENOM} --home $CHAIN_HOME
+$SEID_BINARY add-genesis-account $VALIDATOR_ADDRESS ${VALIDATOR_BALANCE}${DENOM} --home $CHAIN_HOME
 
 # 设置代币释放时间表
 if [ ${#TOKEN_VESTING_SCHEDULES[@]} -gt 0 ]; then
@@ -198,7 +198,7 @@ if [ ${#TOKEN_VESTING_SCHEDULES[@]} -gt 0 ]; then
     for VESTING_CONFIG in "${TOKEN_VESTING_SCHEDULES[@]}"; do
         IFS=':' read -r ADDRESS START END AMOUNT <<< "$VESTING_CONFIG"
         log_info "  $ADDRESS: $AMOUNT$DENOM (从 $START 到 $END)"
-        $SEID_BINARY genesis add-genesis-account $ADDRESS ${AMOUNT}${DENOM} \
+        $SEID_BINARY add-genesis-account $ADDRESS ${AMOUNT}${DENOM} \
             --vesting-amount ${AMOUNT}${DENOM} \
             --vesting-start-time $START \
             --vesting-end-time $END \
