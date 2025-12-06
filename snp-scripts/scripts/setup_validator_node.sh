@@ -305,7 +305,7 @@ if [ "$ENABLE_STATE_SYNC" == "true" ]; then
         else
             log_info "从 RPC 获取信任高度和哈希..."
             FIRST_RPC=$(echo $STATE_SYNC_RPC_SERVERS | cut -d',' -f1)
-            LATEST_HEIGHT=$(curl -s "http://$FIRST_RPC/block" | jq -r .result.block.header.height)
+            LATEST_HEIGHT=$(curl -s "http://$FIRST_RPC/status" | jq -r .result.sync_info.latest_block_height)
             TRUST_HEIGHT=$((LATEST_HEIGHT - 1000))
             TRUST_HASH=$(curl -s "http://$FIRST_RPC/block?height=$TRUST_HEIGHT" | jq -r .result.block_id.hash)
             
