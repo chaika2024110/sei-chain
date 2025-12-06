@@ -237,9 +237,9 @@ jq ".app_state.distribution.params.community_tax = \"$COMMUNITY_TAX\"" $GENESIS_
 # Mint 参数
 log_info "设置 Mint 参数..."
 jq ".app_state.mint.params.mint_denom = \"$DENOM\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".app_state.mint.params.inflation_rate_change = \"$INFLATION_RATE_CHANGE\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".app_state.mint.params.inflation_max = \"$INFLATION_MAX\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".app_state.mint.params.inflation_min = \"$INFLATION_MIN\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+#jq ".app_state.mint.params.inflation_rate_change = \"$INFLATION_RATE_CHANGE\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+#jq ".app_state.mint.params.inflation_max = \"$INFLATION_MAX\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+#jq ".app_state.mint.params.inflation_min = \"$INFLATION_MIN\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 
 # Crisis 参数
 log_info "设置 Crisis 参数..."
