@@ -289,7 +289,7 @@ log_info "Genesis 参数配置完成"
 
 log_step "步骤 6: 创建创世交易 (gentx)"
 
-$SEID_BINARY genesis gentx $VALIDATOR_KEY_NAME \
+$SEID_BINARY  gentx $VALIDATOR_KEY_NAME \
     ${VALIDATOR_STAKE}${DENOM} \
     --chain-id=$CHAIN_ID \
     --moniker="$VALIDATOR_MONIKER" \
@@ -308,7 +308,7 @@ log_info "Gentx 创建成功"
 
 log_step "步骤 7: 收集创世交易"
 
-$SEID_BINARY genesis collect-gentxs --home $CHAIN_HOME
+$SEID_BINARY  collect-gentxs --home $CHAIN_HOME
 
 log_info "创世交易收集完成"
 
