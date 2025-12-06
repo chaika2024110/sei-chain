@@ -259,10 +259,10 @@ $PYTHON_CMD -c "
 import json
 with open('$GENESIS_FILE', 'r') as f:
     genesis = json.load(f)
-if 'tendermint' in genesis['consensus']['params']:
-    genesis['consensus']['params']['tendermint']['max_voting_power_ratio'] = '$MAX_VOTING_POWER_RATIO'
+if 'tendermint' in genesis['consensus_params']:
+    genesis['consensus_params']['tendermint']['max_voting_power_ratio'] = '$MAX_VOTING_POWER_RATIO'
 else:
-    genesis['consensus']['params']['max_voting_power_ratio'] = '$MAX_VOTING_POWER_RATIO'
+    genesis['consensus_params']['max_voting_power_ratio'] = '$MAX_VOTING_POWER_RATIO'
 with open('$GENESIS_FILE', 'w') as f:
     json.dump(genesis, f, indent=2)
 "
