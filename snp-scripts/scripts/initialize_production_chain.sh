@@ -218,6 +218,8 @@ jq ".app_state.gov.voting_params.voting_period = \"${VOTING_PERIOD}s\"" $GENESIS
 jq ".app_state.gov.deposit_params.max_deposit_period = \"${DEPOSIT_PERIOD}s\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 jq ".app_state.gov.deposit_params.min_deposit[0].amount = \"$MIN_DEPOSIT\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 jq ".app_state.gov.deposit_params.min_deposit[0].denom = \"$DENOM\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".app_state.gov.deposit_params.min_expedited_deposit[0].amount = 5000000000" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".app_state.gov.deposit_params.min_expedited_deposit[0].denom = \"$DENOM\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 
 # Oracle 参数
 log_info "设置 Oracle 参数..."
