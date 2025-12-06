@@ -250,7 +250,7 @@ log_info "设置共识参数..."
 jq ".consensus_params.block.time_iota_ms = \"$BLOCK_TIME_IOTA_MS\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 jq ".consensus_params.block.max_bytes = \"$MAX_BLOCK_SIZE\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 jq ".consensus_params.block.max_gas = \"$MAX_GAS\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".consensus_params.evidence.max_age_duration = \"${UNBONDING_TIME}s\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+#jq ".consensus_params.evidence.max_age_duration = \"${UNBONDING_TIME}\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 jq ".consensus_params.validator.pub_key_types = [\"ed25519\"]" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 
 # 验证者投票权限制 - 关键安全参数！
