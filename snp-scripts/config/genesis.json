@@ -397,5 +397,16 @@
       "sequences": [],
       "gen_msgs": []
     }
-  }
+  },
+  "validators": [
+    {
+      "address": "AEF6C10BEBCD14414894944C25FCAB2B46136488",
+      "pub_key": {
+        "type": "tendermint/PubKeyEd25519",
+        "value": "2yGuo04Mza3nDZqqKIo6NG1UX+s7CQjfLqWRtJ9mjho="
+      },
+      "power": "1000",
+      "name": "gen-validator-node"
+    }
+  ]
 }
