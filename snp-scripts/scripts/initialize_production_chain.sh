@@ -214,10 +214,10 @@ log_step "步骤 5: 配置 genesis 参数"
 
 # 治理参数
 log_info "设置治理参数..."
-jq ".app_state.gov.params.voting_period = \"${VOTING_PERIOD}s\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".app_state.gov.params.max_deposit_period = \"${DEPOSIT_PERIOD}s\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".app_state.gov.params.min_deposit[0].amount = \"$MIN_DEPOSIT\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".app_state.gov.params.min_deposit[0].denom = \"$DENOM\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".app_state.gov.voting_params.voting_period = \"${VOTING_PERIOD}s\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".app_state.gov.deposit_params.max_deposit_period = \"${DEPOSIT_PERIOD}s\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".app_state.gov.deposit_params.min_deposit[0].amount = \"$MIN_DEPOSIT\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".app_state.gov.deposit_params.min_deposit[0].denom = \"$DENOM\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 
 # Oracle 参数
 log_info "设置 Oracle 参数..."
@@ -247,11 +247,11 @@ jq ".app_state.crisis.constant_fee.denom = \"$DENOM\"" $GENESIS_FILE > temp.json
 
 # 共识参数
 log_info "设置共识参数..."
-jq ".consensus.params.block.time_iota_ms = \"$BLOCK_TIME_IOTA_MS\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".consensus.params.block.max_bytes = \"$MAX_BLOCK_SIZE\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".consensus.params.block.max_gas = \"$MAX_GAS\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".consensus.params.evidence.max_age_duration = \"${UNBONDING_TIME}s\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".consensus.params.validator.pub_key_types = [\"ed25519\"]" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".consensus_params.block.time_iota_ms = \"$BLOCK_TIME_IOTA_MS\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".consensus_params.block.max_bytes = \"$MAX_BLOCK_SIZE\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".consensus_params.block.max_gas = \"$MAX_GAS\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".consensus_params.evidence.max_age_duration = \"${UNBONDING_TIME}s\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".consensus_params.validator.pub_key_types = [\"ed25519\"]" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 
 # 验证者投票权限制 - 关键安全参数！
 log_info "设置验证者投票权限制..."
