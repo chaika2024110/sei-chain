@@ -212,6 +212,14 @@ $SEID_BINARY add-genesis-account $VALIDATOR_ADDRESS ${VALIDATOR_BALANCE}${DENOM}
 
 log_step "步骤 5: 配置 genesis 参数"
 
+# 设置验证者列表
+log_info "设置验证者列表..."
+KEY=$(jq '.pub_key' ~/.snp/config/priv_validator_key.json -c)
+jq ".validators = [{}]" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq '.validators[0] += {"power":"1000"}' $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq '.validators[0] += {"pub_key":'$KEY'}' $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq '.validators[0] += {"name":"gen-validator-node"}' $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+
 # 治理参数
 log_info "设置治理参数..."
 jq ".app_state.gov.voting_params.voting_period = \"${VOTING_PERIOD}s\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
