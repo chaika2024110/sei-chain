@@ -226,7 +226,7 @@ log_info "设置 Oracle 参数..."
 jq ".app_state.oracle.params.vote_period = \"$ORACLE_VOTE_PERIOD\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 jq ".app_state.oracle.params.vote_threshold = \"$ORACLE_VOTE_THRESHOLD\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 jq ".app_state.oracle.params.whitelist = \"$ORACLE_WHITELIST\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
-jq ".app_state.oracle.params.slash_window = \"5000\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
+jq ".app_state.oracle.params.slash_window = \"6000\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 jq ".app_state.oracle.params.min_valid_per_window = \"0.000000000000000000\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 jq ".app_state.slashing.params.slash_fraction_double_sign = \"0.000000000000000000\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
 jq ".app_state.slashing.params.slash_fraction_downtime = \"0.000000000000000000\"" $GENESIS_FILE > temp.json && mv temp.json $GENESIS_FILE
